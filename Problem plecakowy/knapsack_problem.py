@@ -1,5 +1,6 @@
 import numpy as np
 from itertools import product
+from typing import Union
 
 weights = np.array([8, 3, 5, 2])
 capacity = 9
@@ -7,12 +8,14 @@ profits = np.array([16, 8, 9, 6])
 
 
 class KnapSack:
-    def __init__(self, profits, weights, capacity):
+    def __init__(self, profits: Union[np.array, list[int]],
+                 weights: Union[np.array, list[int]],
+                 capacity: int):
         self.profits = profits
         self.weights = weights
         self.capacity = capacity
 
-    def solve_knapsack_brute_force(self):
+    def solve_knapsack_brute_force(self) -> dict[str, Union[int, list[int]]]:
         num_of_items = len(self.weights)
         # 1 - item selected, 0 - item not selected
         selected_items_possibilites = list(product(range(2), repeat=num_of_items))
@@ -43,7 +46,7 @@ class KnapSack:
                 'weight': best_weight,
                 'profit': best_profit}
 
-    def solve_knapsack_pw_ratio(self):
+    def solve_knapsack_pw_ratio(self) -> dict[str, Union[int, list[int]]]:
         indexes_with_profit_weight_ratios = sorted(
             [(i, self.profits[i] / self.weights[i]) for i in range(
                 len(self.weights))], key=lambda x: x[1])[::-1]
@@ -64,5 +67,5 @@ class KnapSack:
 
 
 kp = KnapSack(profits, weights, 9)
-print(kp.solve_knapsack_brute_force())
-print(kp.solve_knapsack_pw_ratio())
+print("Brute-force: " + str(kp.solve_knapsack_brute_force()))
+print("Heurestic: " + str(kp.solve_knapsack_pw_ratio()))
