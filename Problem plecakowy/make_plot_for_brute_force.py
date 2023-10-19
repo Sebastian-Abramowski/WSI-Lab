@@ -20,10 +20,32 @@ def calc_times_brute_force(max_num_of_elements: int) -> dict[int, float]:
     weights = np.array([], dtype=int)
     profits = np.array([], dtype=int)
     for i in range(1, max_num_of_elements + 1):
-        weights = np.append(weights, [randint(0, 20)])
-        profits = np.append(profits, [randint(0, 20)])
+        weights = np.append(weights, [randint(1, 20)])
+        profits = np.append(profits, [randint(1, 20)])
         knapsack = KnapSack(profits, weights, randint(10, 50))
         time_in_sec = get_time(knapsack.solve_knapsack_brute_force)
+        result[i] = time_in_sec
+    return result
+
+
+def calc_times_heuristic(max_num_of_elements: int) -> dict[int, float]:
+    """
+    Calculates correlation between the time of execution
+    and the number of elements in arrays with weights and
+    profits in algorithm solving knapsack problem with
+    heuristics
+
+    Returns dictionary:
+    {number_of_elements: execution_time_in_sec...}
+    """
+    result = {}
+    weights = np.array([], dtype=int)
+    profits = np.array([], dtype=int)
+    for i in range(1, max_num_of_elements + 1):
+        weights = np.append(weights, [randint(1, 20)])
+        profits = np.append(profits, [randint(1, 20)])
+        knapsack = KnapSack(profits, weights, randint(10, 50))
+        time_in_sec = get_time(knapsack.solve_knapsack_pw_ratio)
         result[i] = time_in_sec
     return result
 
