@@ -2,10 +2,6 @@ import numpy as np
 from itertools import product
 from typing import Union
 
-weights = np.array([8, 3, 5, 2])
-capacity = 9
-profits = np.array([16, 8, 9, 6])
-
 
 class KnapSack:
     def __init__(self, profits: Union[np.array, list[int]],
@@ -66,6 +62,11 @@ class KnapSack:
                 'profit': profit}
 
 
-kp = KnapSack(profits, weights, 9)
-print("Brute-force: " + str(kp.solve_knapsack_brute_force()))
-print("Heurestic: " + str(kp.solve_knapsack_pw_ratio()))
+if __name__ == "__main__":
+    weights = np.array([8, 3, 5, 2])
+    capacity = 9
+    profits = np.array([16, 8, 9, 6])
+
+    kp = KnapSack(profits, weights, 9)
+    print("Brute-force: " + str(kp.solve_knapsack_brute_force()))
+    print("Heurestic: " + str(kp.solve_knapsack_pw_ratio()))
