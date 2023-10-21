@@ -36,8 +36,6 @@ Długość wektora gradientu pokazuje nam jak bardzo jest stromo (czyli jak szyb
     <img src="img/meshgrid.png" alt="How meshgrid works" width="75%">
   </div>
 
-  <br/>
-
 ## Matplotlib
 
 - plt.contour - tworzy wykres konturowy (przedstawienie wykresu 3d na wykresie 2d)
@@ -64,7 +62,6 @@ Długość wektora gradientu pokazuje nam jak bardzo jest stromo (czyli jak szyb
 
 <br/>
 <img src="img/metoda_gradientu_prostego.png" alt="How minimalization method works" width="75%">
-<br/>
 
 ## Działanie metody gradientu prostego
 
