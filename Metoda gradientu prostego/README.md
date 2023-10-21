@@ -10,7 +10,11 @@ Gradient funkcji to wektor, którego składowe to pochodne cząstkowe funkcji po
 
 Gradient w tym przypadku to żółte wektory, dla każdego punktu (x, y) jest przyporzadkowany wektor.
 <br/>
-<img src="img/gradient.png" alt="Example of gradient" width="75%">
+
+<div style="margin-top: 20px; margin-bottom: 20px">
+  <img src="img/gradient.png" alt="Example of gradient" width="75%">
+</div>
+
 <br/>
 Długość wektora gradientu pokazuje nam jak bardzo jest stromo (czyli jak szybko powierzchnia w danym punkcie się wznosi)
 
@@ -27,7 +31,11 @@ Długość wektora gradientu pokazuje nam jak bardzo jest stromo (czyli jak szyb
   xx, yy = np.meshgrid(xvalues, yvalues) <br/>
   xx will be: [[0 1 2 3 4] [0 1 2 3 4] [0 1 2 3 4] [0 1 2 3 4] [0 1 2 3 4]]
   <br/>
-  <img src="img/meshgrid.png" alt="How meshgrid works" width="75%">
+
+  <div style="margin-top: 20px; margin-bottom: 20px">
+    <img src="img/meshgrid.png" alt="How meshgrid works" width="75%">
+  </div>
+
   <br/>
 
 ## Matplotlib
@@ -40,13 +48,13 @@ Długość wektora gradientu pokazuje nam jak bardzo jest stromo (czyli jak szyb
 
 - Pochodna jako współczynnik kierunkowy stycznej do funkcji w danym punkcie.
 - W naszym przypadku będziemy badać funkcje R^2 -> R
-- W przedstawionych wykresach konturowych zmieniające kolory pokazują większe wartości funkcji (na osi Z)
+- W przedstawionych wykresach konturowych zmieniające kolory pokazują większe/mniejsze wartości funkcji (na osi Z)
   <br/>
 
 ## Metoda gradientu prostego
 
 - Metoda gradientu prostego jest iteracyjnym algorytem wyszukiwania
-  <strong>minimum zadanej funkcji<strong>
+  <strong>minimum zadanej funkcji</strong>
 - Metoda ta znanduje minimum lokalne, a nie koniecznie globalne. Jest ona skuteczna w znajdowaniu najniższego punktu w pewnym obszarze, ale nie gwarantuje znalezienia najniżeszego punktu na całym obszarze dziedziny funkcji.
 - Jej wadą jest to, że przy funkcjach, które mają wiele minimów lokalnych, metoda gradientu prostego może utknąc w jednym z nich i nie znalźć globalnego minimum.
 - Kierunkiem poszukiwań w metodzie gradientu prostego jest antygradient funkcji
@@ -62,5 +70,15 @@ Długość wektora gradientu pokazuje nam jak bardzo jest stromo (czyli jak szyb
 
 W każdej iteracji przechodzimy na punkt o niższej wartości funkcji.
 <br/>
-<img src="img/metoda_gradientu_prostego2.png" alt="How minimalization method works" width="75%">
+
+<div style="margin-top: 20px; margin-bottom: 20px">
+  <img src="img/metoda_gradientu_prostego2.png" alt="How minimalization method works" width="35%">
+<div>
+
 <br/>
+
+## Funkcje do testów do przekopiowania
+
+- f(x,y) = x^(2)+y^(2)
+
+- f(x, y) = 1.5-e^(-x^(2)-y^(2))-0.5 e^(-(x-1)^(2)-(y+2)^(2))
