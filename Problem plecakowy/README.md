@@ -12,19 +12,20 @@ Metoda brute-force polega na rozpatrzeniu wszytkich możliwych ułożeń przedmi
 
 Do plecaka wkładamy stopniowo przedmioty o największym stosunku wartości do wagi. Zakładamy w tym przypadku niepodzielność wkładanych przedmiotów.
 
-## Wskazówka na przyszłość
+## Wskazówka na przyszłość- np.ndarray można mnożyć
 
-np.ndarray można mnożyć <br/>
 Mogłeś użyć tego, zamiast iteracji po wziętych/niewzietych przedmiotach: <br/>
 
 ```
-selected_items_weight = sum(list(np.array(list(selected_items)) * np.array(self.weights)))
-selected_items_profit = sum(list(np.array(list(selected_items)) * np.array(self.profits)))
+selected_items_weight = np.sum(np.array(list(selected_items)) * np.array(self.weights))
+selected_items_profit = np.sum(np.array(list(selected_items)) * np.array(self.profits))
 ```
 
 Zamiast: <br/>
 
 ```
+selected_items_weight = 0
+selected_items_profit = 0
 for i in range(len(self.weights)):
     if selected_items[i] == 1:
         selected_items_weight += self.weights[i]
