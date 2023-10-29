@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from typing import Optional
+import random
 
 
 def func(x: float, y: float) -> float:
@@ -11,12 +13,23 @@ def min_max_norm(val, min_val, max_val, new_min, new_max):
 
 
 class Chromosome:
-    # if array is None it should be initialized with random binary vector
-    def __init__(self, length, array=None):
-        pass
+    def __init__(self, length: int, array: Optional[list[int]] = None):
+        self.length = length
+        if array:
+            self.genes = np.array(array)
+        else:
+            self.genes = np.array([random.randint(0, 1) for _ in range(length)])
 
-    def decode(self, lower_bound, upper_bound, aoi):
-        pass
+    def decode(self, lower_bound: int, upper_bound: int, aoi: tuple[int, int]):
+        """
+        lower_bound: the starting index of the active genes (bits)
+        upper_bound: the ending index of the active genes (bits)
+        aoi: range of decoded value
+        """
+        active_genes = self.genes[lower_bound:upper_bound + 1]
+        genes_value = int("".join([str(bit) for bit in active_genes]), 2)
+        max_genes_value = int("1" * len(active_genes), 2)
+        return min_max_norm(genes_value, 0, max_genes_value, aoi[0], aoi[1])
 
     def mutation(self, probability):
         pass
@@ -61,3 +74,11 @@ class GeneticAlgorithm:
 
     def run(self):
         pass
+
+
+if __name__ == "__main__":
+    # Test metody decode
+    expected_value = 0.529
+    chrom = Chromosome(8, [1, 0, 0, 0, 0, 1, 1, 1])
+    print(f"Decoded expected values is {expected_value}, "
+          f"calculated value {chrom.decode(0, 7, (0, 1)):.3f}")

@@ -11,7 +11,7 @@ binarne</strong> to takie algorytmy nazywamy <strong>algorytmami genetycznymi</s
 - Populacja - zbiór osobników przetwarzanych w każdej iteracji
 - Mutacja - losowe zaburzenie zmiennych osobnika (<strong>genów</strong>), np. zmieniamy randomowy bit chromosomu (ma za zadanie wygenerować punkt z otoczenia punktu mutowanego), jego zadaniem jest trochę różnicować dobre rozwiązania
 - Krzyżowanie - nowy osobnik powstaje na podstawie genów istniejących osobników (najczęściej dwóch), np. krzyżowanie jednopunktowe, gdy dzielimy chromosom w jednym punkcie i zamieniamy drugie częsci miejscami dostając dwóch nowych osobników (ma za zadanie wygenerować punkt pośredni pomiędzy rodzicami)
-- Chromosom - wszystkie geny, najczęściej osobnik ma jeden chromosom
+- Chromosom - wszystkie geny, najczęściej osobnik ma jeden chromosom (wartość można obliczyć np. przekształcając liczbę binarną genotypu na rzeczywistą bez ucinania poczatkowych zer w liczbie binarnej)
 - Reprodukcja - proces tworzenia nowych osobników, potomostwa (ma za zadanie tworzenie potomostwa, w nadzei na znalezienie coraz lepszych rozwiązań problemu), proces opiera się na wyborze rodziców, krzyżowaniu i ewentualnej mutacji
 - Selekcja - wybór najlepiej przystosowanych osobników do reprodukcji (chociaż przez nią spada coraz bardziej różnorodność chromosomów)
 
@@ -36,3 +36,15 @@ Na wykresie punkty powinny pojawiać się w różnych miejscach bliżej minimum.
 - rozmiar populacji powinien być duży, znacznie przewyższając liczbę możliwych rozwiązań (pomaga w eksploracji przestrzeni rozwiązań i zwiększa szanse na znalezienie lepszych rozwiązań)
 - stosuje się duże prawdopodobieństwo krzyżowania i bardzo małe prawdopodobieństwo mutacji
 - uważano, że głównym czynnikiem napędowym ewolucji jest krzyżowanie, przy czym nie powino ono niszczyć znalezionych schematów, w związku z tym krzyżowanie jednopunktowe uważane było za dobre (krzyżowanie równomierne - dla każdego genu losujemy, z którego rodzica będzie pochodził, było uważane za złe, bo gubi znalezione schematy)
+
+## Selekcja turniejowa - metoda reprodukcji
+
+- wybierasz losowo kilku osobników z populacji, zazwyczaj jest to ustalno liczba uczestników w turnieju
+- następnie najlepszy z tej grupy jest wybieranu, o najlpepszej wartości funkcji oceny
+- ten sam proces jest powtarzany, aby wybrać drugiego rodzica
+- rodzice są nastepnie krzyżowani, tworząc potomstwo
+
+## Oznaczenia w szkielecie implementacji
+
+- Chromosome może mieć aktywne i nieaktywne geny - nieaktywne geny to taki, które nie mają wpływu na rozwiązanie oraz nie są brane pod uwagę w funkcji oceny
+- aoi - Area of Interest - to zakres wartości, w którym dekodowane liczby rzeczywiste muszą się znajdować, jeśli aoi to <0, 1>, to po dekodowaniu chromosomu powiniśmy uzyskać liczbę z tego przedziału
