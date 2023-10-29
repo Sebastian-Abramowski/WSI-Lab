@@ -39,10 +39,8 @@ Na wykresie punkty powinny pojawiać się w różnych miejscach bliżej minimum.
 
 ## Selekcja turniejowa - metoda reprodukcji
 
-- wybierasz losowo kilku osobników z populacji, zazwyczaj jest to ustalno liczba uczestników w turnieju
-- następnie najlepszy z tej grupy jest wybieranu, o najlpepszej wartości funkcji oceny
-- ten sam proces jest powtarzany, aby wybrać drugiego rodzica
-- rodzice są nastepnie krzyżowani, tworząc potomstwo
+- populacje dzieli się na szereg dowolnie licznych grup
+- następnie najlepsze dwa osobniki z tych grup są wybierane, są to przyszli rodzice
 
 ## Oznaczenia w szkielecie implementacji
 
