@@ -109,7 +109,7 @@ class GeneticAlgorithm:
         return future_parents
 
     def _get_best_chromosome(self, chromosomes: list[Chromosome]) -> Chromosome:
-        return max(chromosomes, key=lambda chrom: self.eval_objective_func(chrom))
+        return min(chromosomes, key=lambda chrom: self.eval_objective_func(chrom))
 
     def reproduce(self, parents: list[tuple[Chromosome, Chromosome]]) -> list[Chromosome]:
         offspring = []
@@ -137,7 +137,35 @@ class GeneticAlgorithm:
         plt.show()
 
     def run(self):
-        pass
+        trace = []
+        population = self.initialize_population()
+        best_chromosome, min_value = self.find_best_chromosome(population)
+        trace.append(self._get_arguments(best_chromosome))
+        print(f"MIN VALUE {min_value}")
+        for _ in range(self.num_steps):
+            future_parents = self.tournament_selection(population)
+            offspring = self.reproduce(future_parents)
+            population = sorted(population, key=lambda chrom: self.eval_objective_func(chrom))
+            population = population[0:len(population) - len(offspring)]
+            population.extend(offspring)
+
+            new_best_chromosome, new_best_min_value = self.find_best_chromosome(population)
+            if new_best_min_value < min_value:
+                min_value = new_best_min_value
+                best_chromosome = new_best_chromosome
+                trace.append(self._get_arguments(best_chromosome))
+                print(f"MIN VALUE {min_value}")
+        self.plot_func(trace)
+
+    def initialize_population(self) -> list[Chromosome]:
+        population = [None] * self.population_size
+        for i in range(self.population_size):
+            population[i] = Chromosome(self.chromosome_lengths)
+        return population
+
+    def find_best_chromosome(self, population: list[Chromosome]) -> tuple[Chromosome, float]:
+        best_chromosome = self._get_best_chromosome(population)
+        return best_chromosome, self.eval_objective_func(best_chromosome)
 
 
 if __name__ == "__main__":
@@ -157,5 +185,15 @@ if __name__ == "__main__":
     # print((chrom.crossover(chrom1)).genes)
     # print(chrom1.decode(0, 3, (-3, 3)))
 
-    gen_alg = GeneticAlgorithm(8, 2, func, (-3, 3))
-    print(gen_alg.eval_objective_func(chrom1))
+    test = GeneticAlgorithm(
+        chromosome_length = 128,
+        obj_func_num_args = 2,
+        objective_function = func,
+        aoi = [-5, 5],
+        population_size = 1000,
+        tournament_size = 2,
+        mutation_probability = 0.2,
+        crossover_probability = 0.6,
+        num_steps = 30
+    )
+    test.run()
