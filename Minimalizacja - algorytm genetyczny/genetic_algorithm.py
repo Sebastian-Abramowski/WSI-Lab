@@ -1,7 +1,7 @@
 from __future__ import annotations
 import numpy as np
 import matplotlib.pyplot as plt
-from typing import Optional
+from typing import Optional, Callable, Union
 import random
 
 
@@ -9,7 +9,9 @@ def func(x: float, y: float) -> float:
     return 1.5 - np.exp(-x**2 - y**2) - 0.5 * np.exp(-(x - 1)**2 - (y + 2)**2)
 
 
-def min_max_norm(val, min_val, max_val, new_min, new_max):
+def min_max_norm(val: Union[int, float], min_val: Union[int, float],
+                 max_val: Union[int, float], new_min: Union[int, float],
+                 new_max: Union[int, float]) -> float:
     return (val - min_val) * (new_max - new_min) / (max_val - min_val) + new_min
 
 
@@ -49,13 +51,11 @@ class Chromosome:
 
     def crossover(self, other: Chromosome) -> Chromosome:
         """
-        Is it assumed that this and the other Chromosome
-        have genes of the same length
-
         other: the other Chromosome to crossover with
 
-        Returns a child also Chromosome
+        Returns a child, also Chromosome
         """
+        assert self.length % other.length == 0, "Lengths of chromosomes should be the same"
         seperation_index = random.randint(0, self.length - 1)
         child_genes_part1 = self.genes[0:seperation_index + 1]
         child_genes_part2 = other.genes[seperation_index + 1:self.length]
@@ -64,8 +64,11 @@ class Chromosome:
 
 
 class GeneticAlgorithm:
-    def __init__(self, chromosome_length, obj_func_num_args, objective_function, aoi, population_size=1000,
-                 tournament_size=2, mutation_probability=0.05, crossover_probability=0.8, num_steps=30):
+    def __init__(self, chromosome_length: int, obj_func_num_args: int,
+                 objective_function: Callable[..., float], aoi: tuple[int, int],
+                 population_size: int = 1000, tournament_size: int = 2,
+                 mutation_probability: float = 0.05,
+                 crossover_probability: float = 0.8, num_steps: int = 30):
         assert chromosome_length % obj_func_num_args == 0, "Number of bits for each argument should be equal"
         self.chromosome_lengths = chromosome_length
         self.obj_func_num_args = obj_func_num_args
@@ -79,6 +82,12 @@ class GeneticAlgorithm:
         self.num_steps = num_steps
 
     def _get_arguments(self, chromosome: Chromosome) -> list[float]:
+        """
+        Takes values from genes of some chromosome depending on the number
+        of arguments for the objective function (self.obj_func_num_args)
+
+        Returns list of arguments for the objective function
+        """
         args = [None] * self.obj_func_num_args
         current_index = 0
         for i in range(self.obj_func_num_args):
@@ -98,11 +107,11 @@ class GeneticAlgorithm:
 
         Returns tuple of two Chromosemes, potencial parents
         """
-        num_of_groups = len(population) // 2
+        num_of_groups = len(population) // self.tournament_size
         future_parents = [None] * num_of_groups
         for i in range(num_of_groups):
-            group1 = list(np.random.choice(population, 2, replace=False))
-            group2 = list(np.random.choice(population, 2, replace=False))
+            group1 = list(np.random.choice(population, self.tournament_size, replace=False))
+            group2 = list(np.random.choice(population, self.tournament_size, replace=False))
             parent1 = self._get_best_chromosome(group1)
             parent2 = self._get_best_chromosome(group2)
             future_parents[i] = (parent1, parent2)
@@ -125,7 +134,7 @@ class GeneticAlgorithm:
                 offspring.extend(single_parents)
         return offspring
 
-    def plot_func(self, trace):
+    def plot_func(self, trace: list[tuple[float, float]]) -> None:
         X = np.arange(-2, 3, 0.05)
         Y = np.arange(-4, 2, 0.05)
         X, Y = np.meshgrid(X, Y)
@@ -141,20 +150,17 @@ class GeneticAlgorithm:
         population = self.initialize_population()
         best_chromosome, min_value = self.find_best_chromosome(population)
         trace.append(self._get_arguments(best_chromosome))
-        print(f"MIN VALUE {min_value}")
-        for _ in range(self.num_steps):
-            future_parents = self.tournament_selection(population)
-            offspring = self.reproduce(future_parents)
-            population = sorted(population, key=lambda chrom: self.eval_objective_func(chrom))
-            population = population[0:len(population) - len(offspring)]
-            population.extend(offspring)
-
+        print(f"0. iteration | MIN VALUE {min_value} at {self._get_arguments(best_chromosome)} |"
+              f"Population size: {len(population)} |")
+        for i in range(self.num_steps):
+            population = self.make_new_population_custom(population)
             new_best_chromosome, new_best_min_value = self.find_best_chromosome(population)
             if new_best_min_value < min_value:
                 min_value = new_best_min_value
                 best_chromosome = new_best_chromosome
                 trace.append(self._get_arguments(best_chromosome))
-                print(f"MIN VALUE {min_value}")
+                print(f"{i + 1}. iteration | MIN VALUE {min_value} at "
+                      f"{self._get_arguments(best_chromosome)} | Population size: {len(population)} |")
         self.plot_func(trace)
 
     def initialize_population(self) -> list[Chromosome]:
@@ -167,33 +173,58 @@ class GeneticAlgorithm:
         best_chromosome = self._get_best_chromosome(population)
         return best_chromosome, self.eval_objective_func(best_chromosome)
 
+    def make_new_population_custom(self, population: list[Chromosome]) -> list[Chromosome]:
+        future_parents = self.tournament_selection(population)
+        offspring = self.reproduce(future_parents)
+        population = sorted(population, key=lambda chrom: self.eval_objective_func(chrom))
+        population = population[0:len(population) - len(offspring)]
+        population.extend(offspring)
+
+        return population
+
 
 if __name__ == "__main__":
     # Test metody decode
     expected_value = 0.529
-    chrom = Chromosome(8, [1, 0, 0, 0, 0, 1, 1, 1])
+    chrom0 = Chromosome(8, [1, 0, 0, 0, 0, 1, 1, 1])
     print(f"Decoded expected values is {expected_value}, "
-          f"calculated value {chrom.decode(0, 7, (0, 1)):.3f}")
+          f"calculated value {chrom0.decode(0, 7, (0, 1)):.3f}")
 
     # Test mutation
-    chrom = Chromosome(8, [1, 1, 1, 1, 1, 1, 1, 1])
-    # chrom.mutation(1)
-    # print(chrom.genes)
+    chrom1 = Chromosome(8, [1, 1, 1, 1, 1, 1, 1, 1])
+    chrom1.mutation(1)
+    print(f"Mutated from [1 1 1 1 1 1 1 1] to {chrom1.genes}")
 
     # Test crossover
-    chrom1 = Chromosome(8, [0, 1, 1, 1, 0, 1, 0, 1])
-    # print((chrom.crossover(chrom1)).genes)
-    # print(chrom1.decode(0, 3, (-3, 3)))
+    chrom1 = Chromosome(8, [1, 1, 1, 1, 1, 1, 1, 1])
+    chrom2 = Chromosome(8, [0, 0, 0, 0, 0, 0, 0, 0])
+    print(f"Product of the crossover: {(chrom1.crossover(chrom2)).genes}")
 
-    test = GeneticAlgorithm(
-        chromosome_length = 128,
-        obj_func_num_args = 2,
-        objective_function = func,
-        aoi = [-5, 5],
-        population_size = 1000,
-        tournament_size = 2,
-        mutation_probability = 0.2,
-        crossover_probability = 0.6,
-        num_steps = 30
+    # Test decode
+    chrom3 = Chromosome(9, [1, 0, 1, 0, 0, 0, 1, 1, 0])
+    print(f"Decoded value of [1 0 1] to value from range (-1, 1) should be {5/7*2-1}, "
+          f"it is {chrom3.decode(0, 2, (-1, 1))}")
+    print("Decoded value of [0 0 0] to value from range (-1, 1) should be -1, "
+          f"it is {chrom3.decode(3, 5, (-1, 1))}")
+    print(f"Decoded value of [1 1 0] to value from range (-1, 1) should be {6/7*2-1}, "
+          f"it is {chrom3.decode(6, 8, (-1, 1))}")
+    print('\n')
+
+    # Good parameters
+    gen_alg = GeneticAlgorithm(
+        chromosome_length=64,
+        obj_func_num_args=2,
+        objective_function=func,
+        aoi=(-5, 5),
+        population_size=256,
+        tournament_size=2,
+        mutation_probability=0.1,
+        crossover_probability=0.75,
+        num_steps=40
     )
-    test.run()
+    gen_alg.run()
+
+# TODO: sprawdz implmentacje teoretycznie
+# TODO: sprawdz implementacje praktycznie
+# TODO: napisz sprawozdanie
+# TODO: drugi rodzaj
