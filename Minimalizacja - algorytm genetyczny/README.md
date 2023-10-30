@@ -15,11 +15,6 @@ binarne</strong> to takie algorytmy nazywamy <strong>algorytmami genetycznymi</s
 - Reprodukcja - proces tworzenia nowych osobników, potomostwa (ma za zadanie tworzenie potomostwa, w nadzei na znalezienie coraz lepszych rozwiązań problemu), proces opiera się na wyborze rodziców, krzyżowaniu i ewentualnej mutacji
 - Selekcja - wybór najlepiej przystosowanych osobników do reprodukcji (chociaż przez nią spada coraz bardziej różnorodność chromosomów)
 
-## Pseudokod
-
-<img src="img/algorytm_genetyczny_pseudokod.png" alt="Pseudocode of the genetic algorithm" width="75%">
-</br>
-
 ## Oczekiwany wynik
 
 Na wykresie punkty powinny pojawiać się w różnych miejscach bliżej minimum. Nie powinna to być linia jak w przypadku minializacji metodą gradientu prostego. Celem jest znalezienie optymalnych rozwiązań w przestrzeni rozwiązań poprzez ewolucję populacji.
@@ -46,3 +41,15 @@ Na wykresie punkty powinny pojawiać się w różnych miejscach bliżej minimum.
 
 - Chromosome może mieć aktywne i nieaktywne geny - nieaktywne geny to taki, które nie mają wpływu na rozwiązanie oraz nie są brane pod uwagę w funkcji oceny
 - aoi - Area of Interest - to zakres wartości, w którym dekodowane liczby rzeczywiste muszą się znajdować, jeśli aoi to <0, 1>, to po dekodowaniu chromosomu powiniśmy uzyskać liczbę z tego przedziału
+
+## Sukcesja generyczna
+
+- polega na zastępowaniu całej populacji nową populacją w każdej generacji, której osobiniki są wynikiem krzyżowania i mutacji; ten proces ma na celu kontynuację ewolucji populacji w kierunku lepszych rozwiązań w zależności od problemu
+- utrzymuje stałą liczbę osobników w populacji
+
+## Customowa sukcesja
+
+- polega na robienia reprodukcji na parach rodziców, których liczba jest równa liczbie populacja // liczba_osobników_w_turnieju
+  (ile turniejów można zrobić w populacji)
+- zastępuje najgorsze osobniki w populacji potomstwem
+- utrzymuje stałą liczbę osobników w populacji

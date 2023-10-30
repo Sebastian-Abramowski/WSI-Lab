@@ -101,7 +101,8 @@ class GeneticAlgorithm:
     def tournament_selection(self, population: list[Chromosome]) -> list[tuple[Chromosome,
                                                                                Chromosome]]:
         """
-        We assume that we select Chromsomes to a group with no repetitions
+        We assume that we select Chromsomes to a group with no repetitions, one tournament
+        picks two parents
 
         population: list of all Chromosomes in the population
 
@@ -145,7 +146,7 @@ class GeneticAlgorithm:
         plt.scatter([x[0] for x in trace], [x[1] for x in trace], c=cmaps)
         plt.show()
 
-    def run(self):
+    def run(self, *, if_generational_replacement: bool = False):
         trace = []
         population = self.initialize_population()
         best_chromosome, min_value = self.find_best_chromosome(population)
@@ -153,7 +154,11 @@ class GeneticAlgorithm:
         print(f"0. iteration | MIN VALUE {min_value} at {self._get_arguments(best_chromosome)} |"
               f"Population size: {len(population)} |")
         for i in range(self.num_steps):
-            population = self.make_new_population_custom(population)
+            if if_generational_replacement:
+                population = self.make_new_population_alternative(population)
+            else:
+                population = self.make_new_population_custom(population)
+
             new_best_chromosome, new_best_min_value = self.find_best_chromosome(population)
             if new_best_min_value < min_value:
                 min_value = new_best_min_value
@@ -174,6 +179,10 @@ class GeneticAlgorithm:
         return best_chromosome, self.eval_objective_func(best_chromosome)
 
     def make_new_population_custom(self, population: list[Chromosome]) -> list[Chromosome]:
+        """
+        Replaces the worst individuals with offspring, it replaces
+        some part of the current population
+        """
         future_parents = self.tournament_selection(population)
         offspring = self.reproduce(future_parents)
         population = sorted(population, key=lambda chrom: self.eval_objective_func(chrom))
@@ -181,6 +190,36 @@ class GeneticAlgorithm:
         population.extend(offspring)
 
         return population
+
+    def make_new_population_alternative(self, population: list[Chromosome]) -> list[Chromosome]:
+        """
+        Alternative way to make a new population - generational replacement, it replaces
+        the entire population with the new generation
+        """
+        new_population = []
+        while len(new_population) != self.population_size:
+            # Selection
+            group1 = list(np.random.choice(population, self.tournament_size, replace=False))
+            group2 = list(np.random.choice(population, self.tournament_size, replace=False))
+            parent1 = self._get_best_chromosome(group1)
+            parent2 = self._get_best_chromosome(group2)
+
+            # Crossover, mutation
+            crossover_chance = random.uniform(0.0, 1.0)
+            if crossover_chance <= self.crossover_probability:
+                child = parent1.crossover(parent2)
+                child.mutation(self.mutation_probability)
+                new_population.append(child)
+            else:
+                mutation_change = self.mutation_probability
+                if mutation_change <= self.mutation_probability:
+                    parent1.mutation(self.mutation_probability)
+                new_population.append(parent1)
+                if len(new_population) != self.population_size:
+                    if mutation_change <= self.mutation_probability:
+                        parent2.mutation(self.mutation_probability)
+                    new_population.append(parent2)
+        return new_population
 
 
 if __name__ == "__main__":
@@ -222,9 +261,4 @@ if __name__ == "__main__":
         crossover_probability=0.75,
         num_steps=40
     )
-    gen_alg.run()
-
-# TODO: sprawdz implmentacje teoretycznie
-# TODO: sprawdz implementacje praktycznie
-# TODO: napisz sprawozdanie
-# TODO: drugi rodzaj
+    gen_alg.run(if_generational_replacement=True)
