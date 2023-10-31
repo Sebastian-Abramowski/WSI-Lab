@@ -72,7 +72,7 @@ class GeneticAlgorithm:
         assert chromosome_length % obj_func_num_args == 0, "Number of bits for each argument should be equal"
         self.chromosome_lengths = chromosome_length
         self.obj_func_num_args = obj_func_num_args
-        self.bits_per_arg = int(chromosome_length / obj_func_num_args)
+        self.bits_per_arg = chromosome_length // obj_func_num_args
         self.objective_function = objective_function
         self.aoi = aoi
         self.population_size = population_size
@@ -108,9 +108,9 @@ class GeneticAlgorithm:
 
         Returns tuple of two Chromosemes, potencial parents
         """
-        num_of_groups = len(population) // self.tournament_size
-        future_parents = [None] * num_of_groups
-        for i in range(num_of_groups):
+        num_of_tournaments = len(population) // self.tournament_size
+        future_parents = [None] * num_of_tournaments
+        for i in range(num_of_tournaments):
             group1 = list(np.random.choice(population, self.tournament_size, replace=False))
             group2 = list(np.random.choice(population, self.tournament_size, replace=False))
             parent1 = self._get_best_chromosome(group1)
@@ -198,7 +198,7 @@ class GeneticAlgorithm:
         """
         new_population = []
         while len(new_population) != self.population_size:
-            # Selection
+            # Single tournament selection
             group1 = list(np.random.choice(population, self.tournament_size, replace=False))
             group2 = list(np.random.choice(population, self.tournament_size, replace=False))
             parent1 = self._get_best_chromosome(group1)
