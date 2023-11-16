@@ -60,8 +60,8 @@ class ConnectFourState(State):
 
         super().__init__(current_player, other_player)
 
-    def get_moves(self) -> Iterable[State]:
-        return [self.make_move(ConnectFourMove(i)) for i, column in enumerate(
+    def get_moves(self) -> Iterable[Move]:
+        return [ConnectFourMove(i) for i, column in enumerate(
             self.fields) if column[-1] is None]
 
     def get_current_player(self) -> Player:

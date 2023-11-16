@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 class Player:
     def __init__(self, char: str) -> None:
         """
@@ -10,3 +13,8 @@ class Player:
             raise ValueError('Character that represents player should be of length 1')
 
         self.char = char
+
+    def __eq__(self, other: Player) -> bool:
+        if not other:
+            return False
+        return self.char == other.char
