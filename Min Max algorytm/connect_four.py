@@ -1,3 +1,4 @@
+from __future__ import annotations
 from move import Move
 from game import Game
 from player import Player
@@ -27,7 +28,7 @@ class ConnectFour(Game):
         super().__init__(state)
 
 
-class ConnectFourMove():
+class ConnectFourMove(Move):
     """
     Class that represents a move in the dots and boxes game
 
@@ -38,7 +39,7 @@ class ConnectFourMove():
         self.column = column
         super().__init__()
 
-    def __eq__(self, other: object) -> bool:
+    def __eq__(self, other: ConnectFourMove) -> bool:
         if not isinstance(other, ConnectFourMove):
             return False
         return self.column == other.column
@@ -59,13 +60,14 @@ class ConnectFourState(State):
 
         super().__init__(current_player, other_player)
 
-    def get_moves(self) -> Iterable[ConnectFourMove]:
-        return [ConnectFourMove(i) for i, column in enumerate(self.fields) if column[-1] is None]
+    def get_moves(self) -> Iterable[State]:
+        return [self.make_move(ConnectFourMove(i)) for i, column in enumerate(
+            self.fields) if column[-1] is None]
 
     def get_current_player(self) -> Player:
         return self._current_player
 
-    def make_move(self, move: ConnectFourMove) -> 'ConnectFourState':
+    def make_move(self, move: ConnectFourMove) -> ConnectFourState:
         new_fields = [list(column) for column in self.fields]
         self._put(new_fields, move)
         return ConnectFourState(current_player=self._other_player, other_player=self._current_player,

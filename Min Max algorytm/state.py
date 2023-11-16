@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Iterable, Optional
 
 from move import Move
@@ -10,7 +11,7 @@ class State:
         self._current_player = current_player
         self._other_player = other_player
 
-    def get_moves(self) -> Iterable[Move]:
+    def get_moves(self) -> Iterable[State]:
         """
         Returns:
             Possible moves
@@ -24,7 +25,7 @@ class State:
         """
         return self._current_player
 
-    def make_move(self, move: Move) -> 'State':
+    def make_move(self, move: Move) -> State:
         """
         Creates a new state after making the move
 

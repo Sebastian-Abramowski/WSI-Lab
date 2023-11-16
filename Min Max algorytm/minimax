@@ -1,0 +1,56 @@
+from typing import Tuple
+import sys
+
+from connect_four import ConnectFour
+from player import Player
+
+sys.setrecursionlimit(5000)
+
+
+class MinMaxSolver:
+
+    def __init__(self, game: ConnectFour):
+        self.game = game
+
+    def evaluate_position(self, player: Player) -> float:
+        pass
+
+    def get_best_move(self) -> int:
+        pass
+
+    def is_valid_move(self, col_index: int) -> bool:
+        pass
+
+    def minimax(self, depth, alpha: float, beta: float, is_maximizing_player: bool) -> Tuple[int, float]:
+        """Returns column index and score"""
+        pass
+
+
+def minimax(board, depth, max_player, game, alpha, beta, num_to_win=NUM_TO_WIN):
+    if depth == 0 or game.check_for_win(board, num_to_win)[0]:
+        return (board.evaluate(num_to_win, num_to_win), board)
+
+    if max_player:
+        max_eval = float('-inf')
+        best_move = None
+        for move in get_all_moves(board, 'O'):
+            evaluation = minimax(move, depth-1, False, game, alpha, beta, num_to_win)[0]
+            max_eval = max(max_eval, evaluation)
+            if max_eval == evaluation:
+                best_move = move
+            alpha = max(alpha, max_eval)
+            if alpha > beta:
+                break
+        return max_eval, best_move
+    else:
+        min_eval = float('inf')
+        best_move = None
+        for move in get_all_moves(board, 'X'):
+            evaluation = minimax(move, depth-1, True, game, alpha, beta, num_to_win)[0]
+            min_eval = min(min_eval, evaluation)
+            if min_eval == evaluation:
+                best_move = move
+            beta = min(beta, min_eval)
+            if alpha > beta:
+                break
+        return min_eval, best_move
