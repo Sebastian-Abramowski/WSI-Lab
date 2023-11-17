@@ -1,12 +1,12 @@
 from player import Player
-from connect_four import ConnectFour, ConnectFourMove
-from minimax import MinMaxRunner
+from connect_four import ConnectFour
+from minimax import MinMaxRunner, MinMaxSolver
 
 ROW_COUNT = 6
 COLUMN_COUNT = 7
 
 
-def test_simple_choice():
+def test_simple_choice_going_for_win():
     """
     [ ][ ][ ][b][ ][ ][ ]
     [ ][ ][ ][a][ ][ ][ ]
@@ -33,7 +33,7 @@ def test_simple_choice():
     assert (p1, 4) == runner.show_minimax_move(5)[1:]
 
 
-def test_simple_choice2():
+def test_simple_choice_going_for_win2():
     """
     [ ][ ][ ][b][ ][ ][ ]
     [ ][ ][ ][a][ ][ ][ ]
@@ -92,3 +92,28 @@ def test_tournament():
             break
 
     assert game.state.get_winner() != p2
+
+
+def test_blocking():
+    """
+    [ ][ ][ ][b][ ][ ][ ]
+    [ ][ ][ ][a][ ][ ][ ]
+    [ ][ ][ ][a][ ][ ][ ]
+    [ ][ ][ ][a][ ][ ][ ]
+    [ ][b][ ][b][ ][ ][ ]
+    [ ][b][b][a][ ][a][a]
+    """
+    p1 = Player("a")
+    p2 = Player("b")
+    game = ConnectFour(size=(COLUMN_COUNT, ROW_COUNT), first_player=p2, second_player=p1)
+    game.state.fields = [[None, None, None, None, None, None],
+                         [p2, p2, None, None, None, None],
+                         [p2, None, None, None, None, None],
+                         [p1, p2, p1, p1, p1, p2],
+                         [None, None, None, None, None, None],
+                         [p1, None, None, None, None, None],
+                         [p1, None, None, None, None, None]]
+    runner = MinMaxRunner(game)
+    assert (p2, 4) == runner.show_minimax_move(5)[1:]
+    runner.make_minimax_move(5)
+    assert (p1, 2) == runner.show_minimax_move(5)[1:]

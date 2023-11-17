@@ -144,8 +144,10 @@ class MinMaxSolver:
                 if_max_player: bool) -> Tuple[int, ConnectFourState]:
         """Returns column index and state"""
         if depth == 0 or state.is_finished():
-            eval = self.evaluate_for_player(state, state._other_player
-                                            ) - self.evaluate_for_player(state, state._current_player)
+            if not if_max_player:
+                eval = self.evaluate_for_player(state, state._other_player) - self.evaluate_for_player(state, state._current_player)
+            else:
+                eval = self.evaluate_for_player(state, state._current_player) - self.evaluate_for_player(state, state._other_player)
             return eval, state
 
         if if_max_player:
