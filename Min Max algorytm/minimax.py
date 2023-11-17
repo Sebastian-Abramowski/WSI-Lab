@@ -1,5 +1,6 @@
 from typing import Tuple, Optional
 import sys
+import collections
 
 from connect_four import ConnectFour, ConnectFourState
 from player import Player
@@ -25,13 +26,40 @@ class MinMaxSolver:
             score += 2 * seq_length**2 * num_of_seqs
             # Boosting nearly win situation
             if self.if_potencial_winner:
-                score += 50
+                score += 30
             self.if_potencial_winner = None
+
+        # Diagonally NW - SE
+        score += 54 * self.count_diagonal_NW_SE(state, player)
 
         # Booster
         score += self.count_in_center_column(state, player)
 
         return score
+
+    def count_diagonal_NW_SE(self, state: ConnectFourState, player: Player) -> int:
+        """Count number of 'threes' that have also empty field available
+           in direction from NW to SE"""
+        counted = 0
+        num_rows = len(state.fields[0])
+        num_columns = len(state.fields)
+
+        for col_index in range(num_columns - 3):
+            for row_index in range(num_rows - 1, num_rows - 4, -1):
+                if self._check_diagonal(state, player, col_index, row_index, direction=-1):
+                    counted += 1
+        return counted
+
+    def _check_diagonal(self, state: ConnectFourState, player: Player, col_start: int, row_start: int,
+                        direction: int) -> bool:
+        """
+        Direction -1 = down
+        Direction  1 = up
+        """
+        sequence = [state.fields[col_start + i][row_start + i * direction] for i in range(4)]
+        if collections.Counter(sequence)[player] == 3 and None in sequence:
+            return True
+        return False
 
     def count_horizontal(self, state: ConnectFourState, player: Player) -> dict[int, int]:
         counter = {1: 0, 2: 0, 3: 0}
