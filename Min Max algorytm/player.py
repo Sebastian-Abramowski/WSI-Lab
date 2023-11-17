@@ -18,3 +18,6 @@ class Player:
         if not other:
             return False
         return self.char == other.char
+
+    def __hash__(self) -> int:
+        return hash(self.char)
