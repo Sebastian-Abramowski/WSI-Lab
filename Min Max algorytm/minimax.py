@@ -32,10 +32,26 @@ class MinMaxSolver:
         # Diagonally NW - SE
         score += 54 * self.count_diagonal_NW_SE(state, player)
 
+        # Diagonally NE - SW
+        score += 54 * self.count_diagonal_NE_SW(state, player)
+
         # Booster
         score += self.count_in_center_column(state, player)
 
         return score
+
+    def count_diagonal_NE_SW(self, state: ConnectFourState, player: Player) -> int:
+        """Count number of 'threes' that have also empty field available
+            in direction  from NE to SW"""
+        counted = 0
+        num_rows = len(state.fields[0])
+        num_columns = len(state.fields)
+
+        for col_index in range(num_columns - 1, 2, -1):
+            for row_index in range(num_rows - 1, 2, -1):
+                if self._check_diagonal(state, player, col_index, row_index, direction=1):
+                    counted += 1
+        return counted
 
     def count_diagonal_NW_SE(self, state: ConnectFourState, player: Player) -> int:
         """Count number of 'threes' that have also empty field available
@@ -45,7 +61,7 @@ class MinMaxSolver:
         num_columns = len(state.fields)
 
         for col_index in range(num_columns - 3):
-            for row_index in range(num_rows - 1, num_rows - 4, -1):
+            for row_index in range(num_rows - 1, 2, -1):
                 if self._check_diagonal(state, player, col_index, row_index, direction=-1):
                     counted += 1
         return counted
@@ -53,10 +69,10 @@ class MinMaxSolver:
     def _check_diagonal(self, state: ConnectFourState, player: Player, col_start: int, row_start: int,
                         direction: int) -> bool:
         """
-        Direction -1 = down
-        Direction  1 = up
+        Direction -1 = down and right
+        Direction  1 = down and left
         """
-        sequence = [state.fields[col_start + i][row_start + i * direction] for i in range(4)]
+        sequence = [state.fields[col_start - i * direction][row_start - i] for i in range(4)]
         if collections.Counter(sequence)[player] == 3 and None in sequence:
             return True
         return False

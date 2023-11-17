@@ -150,6 +150,7 @@ def test_count_diagonal_NW_SE_none_right_bottom():
 
 def test_count_diagonal_NW_SE_double_case():
     """
+    Characteristic case
     [ ][ ][ ][ ][ ][ ][ ]
     [ ][ ][ ][ ][ ][ ][ ]
     [a][a][ ][ ][ ][ ][ ]
@@ -168,6 +169,78 @@ def test_count_diagonal_NW_SE_double_case():
                          [p1, p1, None, None, None, None],
                          [p1, None, None, None, None, None]]
     solver = MinMaxSolver()
-    # There one diagonal is counted as two but it's ok
+    # One diagonal is counted as two but it's ok
     # It is a better case than just one ordinary one
     assert solver.count_diagonal_NW_SE(game.state, p1) == 2
+
+
+def test_count_diagonal_NE_SW_none_top_right():
+    """
+    [ ][ ][ ][ ][ ][ ][ ]
+    [ ][ ][ ][ ][ ][ ][ ]
+    [ ][ ][ ][ ][ ][ ][a]
+    [ ][ ][a][ ][ ][a][b]
+    [ ][ ][a][ ][a][b][b]
+    [ ][ ][b][ ][b][a][a]
+    """
+    p1 = Player("a")
+    p2 = Player("b")
+    game = ConnectFour(size=(COLUMN_COUNT, ROW_COUNT), first_player=p1, second_player=p2)
+    game.state.fields = [[None, None, None, None, None, None],
+                         [None, None, None, None, None, None],
+                         [p2, p1, p1, None, None, None],
+                         [None, None, None, None, None, None],
+                         [p2, p1, None, None, None, None],
+                         [p1, p2, p1, None, None, None],
+                         [p1, p2, p2, p1, None, None]]
+    solver = MinMaxSolver()
+    assert solver.count_diagonal_NE_SW(game.state, p1) == 1
+
+
+def test_count_diagonal_NE_SW_none_left_bottom():
+    """
+    [ ][ ][ ][ ][ ][ ][ ]
+    [ ][ ][ ][ ][ ][ ][ ]
+    [ ][ ][ ][ ][ ][ ][ ]
+    [ ][ ][a][ ][ ][a][b]
+    [ ][ ][a][ ][a][b][b]
+    [ ][ ][b][a][b][a][a]
+    """
+    p1 = Player("a")
+    p2 = Player("b")
+    game = ConnectFour(size=(COLUMN_COUNT, ROW_COUNT), first_player=p1, second_player=p2)
+    game.state.fields = [[None, None, None, None, None, None],
+                         [None, None, None, None, None, None],
+                         [p2, p1, p1, None, None, None],
+                         [p1, None, None, None, None, None],
+                         [p2, p1, None, None, None, None],
+                         [p1, p2, p1, None, None, None],
+                         [p1, p2, p2, None, None, None]]
+    solver = MinMaxSolver()
+    assert solver.count_diagonal_NE_SW(game.state, p1) == 1
+
+
+def test_count_diagonal_NE_SW_double_case():
+    """
+    Characteristic case
+    [ ][ ][ ][ ][ ][ ][ ]
+    [ ][ ][ ][ ][ ][ ][ ]
+    [ ][ ][ ][ ][ ][a][ ]
+    [ ][a][ ][ ][a][b][ ]
+    [ ][a][ ][a][b][b][ ]
+    [ ][b][a][b][a][a][ ]
+    """
+    p1 = Player("a")
+    p2 = Player("b")
+    game = ConnectFour(size=(COLUMN_COUNT, ROW_COUNT), first_player=p1, second_player=p2)
+    game.state.fields = [[None, None, None, None, None, None],
+                         [p2, p1, p1, None, None, None],
+                         [None, None, None, None, None, None],
+                         [p2, p1, None, None, None, None],
+                         [p1, p2, p1, None, None, None],
+                         [p1, p2, p2, p1, None, None],
+                         [None, None, None, None, None, None]]
+    solver = MinMaxSolver()
+    # One diagonal is counted as two but it's ok
+    # It is a better case than just one ordinary one
+    assert solver.count_diagonal_NE_SW(game.state, p1) == 2
