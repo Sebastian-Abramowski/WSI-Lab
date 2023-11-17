@@ -17,12 +17,42 @@ class MinMaxSolver:
         for seq_length, num_of_seqs in self.count_vertical(state, player).items():
             score += 2 * seq_length**2 * num_of_seqs
 
+        # Horizontally
+        for seq_length, num_of_seqs in self.count_horizontal(state, player).items():
+            score += 2 * seq_length**2 * num_of_seqs
+
         # Booster
         score += self.count_in_center_column(state, player)
 
         return score
 
-    def count_in_center_column(self, state: ConnectFour, player: Player) -> int:
+    def count_horizontal(self, state: ConnectFourState, player: Player) -> dict[int, int]:
+        counter = {1: 0, 2: 0, 3: 0}
+
+        num_rows = len(state.fields[0])
+        num_columns = len(state.fields)
+        for i in range(num_rows):
+            row = [state.fields[j][i] for j in range(num_columns)]
+            for row_index, field in enumerate(row):
+                if field == player:
+                    counted = self._count_horizontal(row, player, row_index)
+                    is_none_on_left = row_index - 1 >= 0 and row[row_index - 1] is None
+                    is_none_on_right = row_index + counted < len(row) - 1 and row[row_index + counted] is None
+                    if counted in counter and (is_none_on_left or is_none_on_right):
+                        counter[counted] += 1
+        return counter
+
+    def _count_horizontal(self, row: list[Optional[Player]], player: Player, start_index: int) -> int:
+        counted = 0
+        for i in range(start_index, len(row)):
+            if row[i] == player:
+                counted += 1
+                continue
+            else:
+                break
+        return counted
+
+    def count_in_center_column(self, state: ConnectFourState, player: Player) -> int:
         center_column_index = len(state.fields) // 2
         counted_occur_in_center = sum([1 for field in state.fields[
             center_column_index] if field == player])
@@ -33,17 +63,17 @@ class MinMaxSolver:
 
         return counted_occur_in_center
 
-    def count_vertical(self, state: ConnectFourState, player: Player) -> int:
+    def count_vertical(self, state: ConnectFourState, player: Player) -> dict[int, int]:
         counter = {1: 0, 2: 0, 3: 0}
         for i, column in enumerate(state.fields):
             for j, field in enumerate(column):
                 if field is None:
                     counted = self._count_vertical(player, column, j - 1)
-                    if counted in counter.keys():
+                    if counted in counter:
                         counter[counted] += 1
         return counter
 
-    def _count_vertical(self, player: Player, column: list[Optional[Player]], index):
+    def _count_vertical(self, player: Player, column: list[Optional[Player]], index) -> int:
         counted = 0
         while (index >= 0):
             if column[index] == player:
@@ -67,11 +97,11 @@ class MinMaxSolver:
             for move in state.get_moves():
                 new_state = state.make_move(move)
                 evaluation = self.minimax(new_state, depth - 1, alpha, beta, False)[0]
-                max_eval = max(max_eval, evaluation)
-                if max_eval == evaluation:
+                if evaluation > max_eval:
+                    max_eval = evaluation
                     best_state = new_state
                 alpha = max(alpha, max_eval)
-                if alpha > beta:
+                if alpha >= beta:
                     break
             return max_eval, best_state
         else:
@@ -80,11 +110,11 @@ class MinMaxSolver:
             for move in state.get_moves():
                 new_state = state.make_move(move)
                 evaluation = self.minimax(new_state, depth - 1, alpha, beta, True)[0]
-                min_eval = min(min_eval, evaluation)
-                if min_eval == evaluation:
+                if evaluation < min_eval:
+                    min_eval = evaluation
                     best_state = new_state
                 beta = min(beta, min_eval)
-                if alpha > beta:
+                if alpha >= beta:
                     break
             return min_eval, best_state
 
@@ -94,7 +124,7 @@ class MinMaxRunner():
         self.game = game
         self.MinMaxSolver = MinMaxSolver()
 
-    def get_best_move(self, best_next_state: ConnectFourState) -> int:
+    def _get_best_move(self, best_next_state: ConnectFourState) -> int:
         """Returns column index"""
         for i, column in enumerate(best_next_state.fields):
             none_num = sum([1 for field in column if field is None])
@@ -107,8 +137,8 @@ class MinMaxRunner():
         beta = float('inf')
         move_made_by = self.game.state.get_current_player()
         new_state = self.MinMaxSolver.minimax(self.game.state, depth, alpha, beta, True)[1]
-        best_column_move = self.get_best_move(new_state)
+        best_column_move = self._get_best_move(new_state)
         return new_state, move_made_by, best_column_move
 
     def make_minimax_move(self, depth: int) -> None:
-        self.state = self.show_minimax_move(depth)[0]
+        self.game.state = self.show_minimax_move(depth)[0]
