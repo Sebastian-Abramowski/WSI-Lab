@@ -8,6 +8,9 @@ sys.setrecursionlimit(5000)
 
 
 class MinMaxSolver:
+    def __init__(self):
+        self.if_potencial_winner = None
+
     def evaluate_for_player(self, state: ConnectFourState, player: Player) -> float:
         if state.get_winner() == player:
             return 99999
@@ -20,6 +23,10 @@ class MinMaxSolver:
         # Horizontally
         for seq_length, num_of_seqs in self.count_horizontal(state, player).items():
             score += 2 * seq_length**2 * num_of_seqs
+            # Boosting nearly win situation
+            if self.if_potencial_winner:
+                score += 50
+            self.if_potencial_winner = None
 
         # Booster
         score += self.count_in_center_column(state, player)
@@ -41,6 +48,8 @@ class MinMaxSolver:
                     is_none_on_right = row_index + counted < len(row) and row[row_index + counted] is None
                     if counted in counter and (is_none_on_left or is_none_on_right):
                         counter[counted] += 1
+                        if counted == 3 and is_none_on_left and is_none_on_right:
+                            self.if_potencial_winner = True
                     row_index += counted
                 else:
                     row_index += 1
