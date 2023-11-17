@@ -33,13 +33,17 @@ class MinMaxSolver:
         num_columns = len(state.fields)
         for i in range(num_rows):
             row = [state.fields[j][i] for j in range(num_columns)]
-            for row_index, field in enumerate(row):
-                if field == player:
+            row_index = 0
+            while row_index < len(row):
+                if row[row_index] == player:
                     counted = self._count_horizontal(row, player, row_index)
                     is_none_on_left = row_index - 1 >= 0 and row[row_index - 1] is None
-                    is_none_on_right = row_index + counted < len(row) - 1 and row[row_index + counted] is None
+                    is_none_on_right = row_index + counted < len(row) and row[row_index + counted] is None
                     if counted in counter and (is_none_on_left or is_none_on_right):
                         counter[counted] += 1
+                    row_index += counted
+                else:
+                    row_index += 1
         return counter
 
     def _count_horizontal(self, row: list[Optional[Player]], player: Player, start_index: int) -> int:
