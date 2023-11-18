@@ -2,8 +2,8 @@ from typing import Tuple, Optional
 import sys
 import collections
 
-from connect_four import ConnectFour, ConnectFourState
-from player import Player
+from connect_four_game.connect_four import ConnectFour, ConnectFourState
+from connect_four_game.player import Player
 
 sys.setrecursionlimit(5000)
 
@@ -12,7 +12,7 @@ class MinMaxSolver:
     def __init__(self):
         self.if_potencial_winner = None
 
-    def evaluate_for_player(self, state: ConnectFourState, player: Player) -> float:
+    def evaluate_for_player(self, state: ConnectFourState, player: Player) -> int:
         if state.get_winner() == player:
             return 99999
 
@@ -92,8 +92,7 @@ class MinMaxSolver:
                     is_none_on_right = row_index + counted < len(row) and row[row_index + counted] is None
                     if counted in counter and (is_none_on_left or is_none_on_right):
                         counter[counted] += 1
-                        if counted == 3 and is_none_on_left and is_none_on_right:
-                            self.if_potencial_winner = True
+                        self._indicate_potencial_winner_situation(counted, is_none_on_left, is_none_on_right)
                     row_index += counted
                 else:
                     row_index += 1
@@ -109,20 +108,16 @@ class MinMaxSolver:
                 break
         return counted
 
-    def count_in_center_column(self, state: ConnectFourState, player: Player) -> int:
-        center_column_index = len(state.fields) // 2
-        counted_occur_in_center = sum([1 for field in state.fields[
-            center_column_index] if field == player])
-
-        if len(state.fields) % 2 == 0:
-            counted_occur_in_center += sum([1 for field in state.fields[
-                center_column_index - 1] if field == player])
-
-        return counted_occur_in_center
+    def _indicate_potencial_winner_situation(self, counted: int, is_none_on_left: bool,
+                                             is_none_on_right: bool) -> bool:
+        if counted == 3 and is_none_on_left and is_none_on_right:
+            self.if_potencial_winner = True
+            return True
+        return False
 
     def count_vertical(self, state: ConnectFourState, player: Player) -> dict[int, int]:
         counter = {1: 0, 2: 0, 3: 0}
-        for i, column in enumerate(state.fields):
+        for column in state.fields:
             for j, field in enumerate(column):
                 if field is None:
                     counted = self._count_vertical(player, column, j - 1)
@@ -140,15 +135,29 @@ class MinMaxSolver:
                 break
         return counted
 
+    def count_in_center_column(self, state: ConnectFourState, player: Player) -> int:
+        center_column_index = len(state.fields) // 2
+        counted_occur_in_center = sum([1 for field in state.fields[
+            center_column_index] if field == player])
+
+        if len(state.fields) % 2 == 0:
+            counted_occur_in_center += sum([1 for field in state.fields[
+                center_column_index - 1] if field == player])
+
+        return counted_occur_in_center
+
+    def _get_evaluation(self, state: ConnectFourState, if_max_player: bool) -> int:
+        if not if_max_player:
+            return self.evaluate_for_player(state, state._other_player) - self.evaluate_for_player(
+                state, state._current_player)
+        return self.evaluate_for_player(state, state._current_player) - self.evaluate_for_player(
+            state, state._other_player)
+
     def minimax(self, state: ConnectFourState, depth: int, alpha: float, beta: float,
                 if_max_player: bool) -> Tuple[int, ConnectFourState]:
-        """Returns column index and state"""
+        """Returns evaluation and state"""
         if depth == 0 or state.is_finished():
-            if not if_max_player:
-                eval = self.evaluate_for_player(state, state._other_player) - self.evaluate_for_player(state, state._current_player)
-            else:
-                eval = self.evaluate_for_player(state, state._current_player) - self.evaluate_for_player(state, state._other_player)
-            return eval, state
+            return self._get_evaluation(state, if_max_player), state
 
         if if_max_player:
             max_eval = float('-inf')
@@ -183,13 +192,14 @@ class MinMaxRunner():
         self.game = game
         self.MinMaxSolver = MinMaxSolver()
 
-    def _get_best_move(self, best_next_state: ConnectFourState) -> int:
-        """Returns column index"""
+    def _get_best_move(self, best_next_state: ConnectFourState) -> Optional[int]:
+        """Returns column index of the last made move"""
         for i, column in enumerate(best_next_state.fields):
             none_num = sum([1 for field in column if field is None])
             current_none_num = sum([1 for field in self.game.state.fields[i] if field is None])
             if none_num != current_none_num:
                 return i
+        return None
 
     def show_minimax_move(self, depth: int) -> Tuple[ConnectFourState, Player, int]:
         alpha = float('-inf')

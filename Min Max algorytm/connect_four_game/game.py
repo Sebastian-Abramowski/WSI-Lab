@@ -1,7 +1,7 @@
 from typing import Iterable, Optional
-from move import Move
-from player import Player
-from state import State
+from connect_four_game.move import Move
+from connect_four_game.player import Player
+from connect_four_game.state import State
 
 
 class Game:

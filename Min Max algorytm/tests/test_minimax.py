@@ -1,5 +1,5 @@
-from player import Player
-from connect_four import ConnectFour
+from connect_four_game.player import Player
+from connect_four_game.connect_four import ConnectFour
 from minimax import MinMaxRunner
 
 ROW_COUNT = 6
@@ -91,7 +91,42 @@ def test_tournament():
         if game.state.is_finished():
             break
 
-    assert game.state.get_winner() != p2
+    assert game.state.get_winner() == p1
+
+
+def test_tournament2():
+    p1 = Player("a")
+    p2 = Player("b")
+    game = ConnectFour(size=(COLUMN_COUNT, ROW_COUNT), first_player=p1, second_player=p2)
+    runner = MinMaxRunner(game)
+
+    while True:
+        runner.make_minimax_move(3)
+        if game.state.is_finished():
+            break
+        runner.make_minimax_move(4)
+        if game.state.is_finished():
+            break
+
+    assert game.state.get_winner() == p2
+
+
+def test_tournament_same_depths():
+    p1 = Player("a")
+    p2 = Player("b")
+    game = ConnectFour(size=(COLUMN_COUNT, ROW_COUNT), first_player=p1, second_player=p2)
+    runner = MinMaxRunner(game)
+
+    while True:
+        runner.make_minimax_move(3)
+        if game.state.is_finished():
+            break
+        runner.make_minimax_move(3)
+        if game.state.is_finished():
+            break
+
+    # Winner is the one who started
+    assert game.state.get_winner() == p1
 
 
 def test_blocking():

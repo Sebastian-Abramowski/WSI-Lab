@@ -1,8 +1,8 @@
 from __future__ import annotations
-from move import Move
-from game import Game
-from player import Player
-from state import State
+from connect_four_game.move import Move
+from connect_four_game.game import Game
+from connect_four_game.player import Player
+from connect_four_game.state import State
 from typing import Iterable, List, Optional, Tuple
 
 

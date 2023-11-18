@@ -1,5 +1,5 @@
-from player import Player
-from connect_four import ConnectFour, ConnectFourMove
+from connect_four_game.player import Player
+from connect_four_game.connect_four import ConnectFour, ConnectFourMove
 from minimax import MinMaxSolver
 
 ROW_COUNT = 6
