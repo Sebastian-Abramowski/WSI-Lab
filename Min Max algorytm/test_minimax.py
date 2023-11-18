@@ -1,6 +1,6 @@
 from player import Player
 from connect_four import ConnectFour
-from minimax import MinMaxRunner, MinMaxSolver
+from minimax import MinMaxRunner
 
 ROW_COUNT = 6
 COLUMN_COUNT = 7
@@ -117,3 +117,57 @@ def test_blocking():
     assert (p2, 4) == runner.show_minimax_move(5)[1:]
     runner.make_minimax_move(5)
     assert (p1, 2) == runner.show_minimax_move(5)[1:]
+
+
+def test_blocking2():
+    """
+    [ ][ ][ ][b][ ][ ][ ]
+    [ ][ ][ ][a][ ][ ][ ]
+    [ ][ ][ ][a][ ][ ][ ]
+    [ ][ ][ ][a][ ][ ][ ]
+    [ ][ ][ ][b][ ][ ][ ]
+    [ ][ ][a][a][ ][ ][ ]
+    """
+    p1 = Player("a")
+    p2 = Player("b")
+    game = ConnectFour(size=(COLUMN_COUNT, ROW_COUNT), first_player=p2, second_player=p1)
+    game.state.fields = [[None, None, None, None, None, None],
+                         [None, None, None, None, None, None],
+                         [p1, None, None, None, None, None],
+                         [p1, p2, p1, p1, p1, p2],
+                         [None, None, None, None, None, None],
+                         [None, None, None, None, None, None],
+                         [None, None, None, None, None, None]]
+    runner = MinMaxRunner(game)
+    assert runner.show_minimax_move(5)[1:] in [(p2, 1), (p2, 4)]
+
+
+def test_blocking3():
+    """
+    [ ][ ][ ][ ][ ][ ][ ]
+    [ ][ ][ ][a][ ][ ][ ]
+    [ ][ ][ ][b][ ][ ][ ]
+    [ ][ ][ ][b][ ][ ][ ]
+    [ ][ ][ ][b][ ][ ][ ]
+    [ ][a][b][a][ ][a][a]
+    """
+    p1 = Player("a")
+    p2 = Player("b")
+    game = ConnectFour(size=(COLUMN_COUNT, ROW_COUNT), first_player=p2, second_player=p1)
+    game.state.fields = [[None, None, None, None, None, None],
+                         [p1, None, None, None, None, None],
+                         [p2, None, None, None, None, None],
+                         [p1, p2, p2, p2, p1, None],
+                         [None, None, None, None, None, None],
+                         [p1, None, None, None, None, None],
+                         [p1, None, None, None, None, None]]
+    runner = MinMaxRunner(game)
+    assert (p2, 4) == runner.show_minimax_move(5)[1:]
+
+
+def test_first_move():
+    p1 = Player("a")
+    p2 = Player("b")
+    game = ConnectFour(size=(COLUMN_COUNT, ROW_COUNT), first_player=p2, second_player=p1)
+    runner = MinMaxRunner(game)
+    assert (p2, 3) == runner.show_minimax_move(5)[1:]

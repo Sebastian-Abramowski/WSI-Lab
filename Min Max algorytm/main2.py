@@ -49,6 +49,5 @@ print(solver.count_horizontal(game.state, p1))
 # TODO: prrównanie głębokość 5 vs głębokość 2, kto ile razy wygrywa, przeprowadź 50 testów
 # TODO: napisać notatke o Min maxie
 # TODO: wyczyścić strukturę folderu (usunąc niepotrzebne pliki, linter itp.)
-# TODO: napisz z 4 testów żeby sprawdzić jakie decyzje podejmie (na pewno czy leci po potencial wina)
 # TODO: sprawozdanie, przeklejenie kodu, jakieś wnioski
 # TODO: trzeba cały folder wrzucić do Google Colaba
