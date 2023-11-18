@@ -49,4 +49,3 @@ if __name__ == "__main__":
     plot.make_bar_plot(["wins", "loses", "draws"], [wins, loses, draws],
                        color=plot.PLOT_CYAN)
     plot.show_plot()
-    plot.clear_after_making_plot()
