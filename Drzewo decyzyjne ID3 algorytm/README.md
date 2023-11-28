@@ -54,4 +54,5 @@ Podstawowe wiadomości przed wykonaniem zadania:
 - Średnia ważona entropii pomaga obliczyć jakość podziału danych, a wynik jest używany do obliczania zysku informacyjnego, który jest kluczowym kryterium wyboru cechy do podzialu w drzewie decyzyjnym
 - Im niższa suma ważonej entropii, tym lepszy podział (oznacza to że lepiej segregujemy dane)
 - Im większy zysk informacyjny, tym lepiej uporządkowane dane są PO TYM PODZIALE
-- ID3 jest budowane rekurencyjne, a każdy węzeł może mieć różna liczbe potomków (0/1/2), niektóre węzły mogą stać się liśćmi wcześniej niż inne, w zależności od jakości podziału i warunków stopu
+- ID3 jest budowane rekurencyjne, a każdy węzeł może mieć różna liczbe potomków 0/2
+- Jeśli nie ograniczmy tego głębokością drzewa, to w każdym liściu otrzymamy takie podzbiory cech, które mają taką samą klasę

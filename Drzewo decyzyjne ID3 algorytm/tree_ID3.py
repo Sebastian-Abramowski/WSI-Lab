@@ -78,16 +78,14 @@ class DecisionTreeClassifier(object):
 
     def get_best_feature_split_and_info_gain(self, feature_values: np.ndarray,
                                              classes: np.ndarray) -> tuple[float, float]:
-        feature_values_with_class = list(zip(feature_values, classes))
-        feature_values_with_class.sort(key=lambda x: x[0])
+        features_sorted = sorted(feature_values)
         best_info_gain, best_split_value = None, None
-        for i, feature_with_class in enumerate(feature_values_with_class):
-            feature_val, feature_class = feature_with_class
-            if i == len(feature_values_with_class) - 1:
+        for i, feature_value in enumerate(features_sorted):
+            if i == len(features_sorted) - 1:
                 break
-            is_next_feature_same = feature_values_with_class[i + 1][0] == feature_val
+            is_next_feature_same = features_sorted[i + 1] == feature_value
             if not is_next_feature_same:
-                splitting_value = (feature_values_with_class[i + 1][0] + feature_val) / 2
+                splitting_value = (features_sorted[i + 1] + feature_value) / 2
                 group_1 = classes[feature_values < splitting_value]
                 group_2 = classes[feature_values >= splitting_value]
                 info_gain = self.get_information_gain(Group(classes), Group(group_1), Group(group_2))
@@ -116,14 +114,15 @@ class DecisionTreeClassifier(object):
 
     def build_tree(self, data: np.ndarray, classes: np.ndarray, depth: int = 0) -> Node:
         if np.unique(classes).size == 1 or depth == self.max_depth:
-            node = Node(split_feature_index=None, split_val=None, depth=depth,
-                        child_node_a=None, child_node_b=None,
-                        val=self._get_most_common_class(classes))
-            return node
+            return self._creat_leaf_node(classes, depth)
 
         best_split_info = self.get_best_split(data, classes)
         best_feature_index = best_split_info['feature_index']
         best_split_value = best_split_info['split_value']
+
+        is_split_not_possible = best_feature_index is None and best_split_value is None
+        if is_split_not_possible:
+            return self._creat_leaf_node(classes, depth)
 
         left_group_cond = data[:, best_feature_index] < best_split_value
         right_group_cond = data[:, best_feature_index] >= best_split_value
@@ -143,6 +142,11 @@ class DecisionTreeClassifier(object):
         if depth == 0:
             self.tree = current_node
         return current_node
+
+    def _creat_leaf_node(self, classes: np.ndarray, depth: int) -> Node:
+        return Node(split_feature_index=None, split_val=None, depth=depth,
+                    child_node_a=None, child_node_b=None,
+                    val=self._get_most_common_class(classes))
 
     def _get_most_common_class(self, classes: np.ndarray) -> int:
         return np.bincount(classes).argmax()
