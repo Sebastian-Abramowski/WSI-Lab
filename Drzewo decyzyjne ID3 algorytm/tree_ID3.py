@@ -155,9 +155,54 @@ class DecisionTreeClassifier(object):
         return self.tree.predict(features_row_data)
 
 
+def calc_accuracy(x_train: np.ndarray, x_test: np.ndarray, y_train: np.ndarray, y_test: np.ndarray,
+                  depth: int = 3) -> float:
+    dc = DecisionTreeClassifier(depth)
+    dc.build_tree(x_train, y_train)
+    predicted = []
+    for sample, _ in zip(x_test, y_test):
+        prediction = dc.predict(sample)
+        predicted.append(prediction)
+    return sum(predicted == y_test) / y_test.size
+
+
 if __name__ == "__main__":
     dc = DecisionTreeClassifier(3)
     dc.build_tree(x_train, y_train)
-    for sample, gt in zip(x_test, y_test):
+    print("(Predicted class, actual class):")
+    for sample, actual_class in zip(x_test, y_test):
         prediction = dc.predict(sample)
-        print(prediction)
+        print(f"({prediction}, {actual_class})", end=' ')
+    print('\n')
+
+    # print(calc_accuracy(*train_test_split(x, y, test_size=0.1), depth=1))
+    # print(calc_accuracy(*train_test_split(x, y, test_size=0.1), depth=2))
+    # print(calc_accuracy(*train_test_split(x, y, test_size=0.1), depth=3))
+    # print(calc_accuracy(*train_test_split(x, y, test_size=0.1), depth=4))
+    # print(calc_accuracy(*train_test_split(x, y, test_size=0.1), depth=5))
+    # print(calc_accuracy(*train_test_split(x, y, test_size=0.1), depth=6))
+    # print(calc_accuracy(*train_test_split(x, y, test_size=0.1), depth=7))
+    # print(calc_accuracy(*train_test_split(x, y, test_size=0.1), depth=8))
+    # print(calc_accuracy(*train_test_split(x, y, test_size=0.1), depth=9))
+    # print(calc_accuracy(*train_test_split(x, y, test_size=0.1), depth=10))
+    # print(calc_accuracy(*train_test_split(x, y, test_size=0.1), depth=11))
+    # print(calc_accuracy(*train_test_split(x, y, test_size=0.1), depth=12))
+    # print('\n')
+    # Drzewo o mniejszej głębokości może dać lepszą dokładność
+    # Nie zawsze zwiększenie głębkości, poprawi nam wyniki (więc można mieć za bardzo podzielone dane - overfitting)
+
+    # print(calc_accuracy(*train_test_split(x, y, test_size=0.05)))
+    # print(calc_accuracy(*train_test_split(x, y, test_size=0.1)))
+    # print(calc_accuracy(*train_test_split(x, y, test_size=0.2)))
+    # print(calc_accuracy(*train_test_split(x, y, test_size=0.3)))
+    # print(calc_accuracy(*train_test_split(x, y, test_size=0.4)))
+    # print(calc_accuracy(*train_test_split(x, y, test_size=0.5)))
+    # print(calc_accuracy(*train_test_split(x, y, test_size=0.6)))
+    # print(calc_accuracy(*train_test_split(x, y, test_size=0.7)))
+    # print(calc_accuracy(*train_test_split(x, y, test_size=0.8)))
+    # print(calc_accuracy(*train_test_split(x, y, test_size=0.9)))
+    # print(calc_accuracy(*train_test_split(x, y, test_size=0.95)))
+    # print(calc_accuracy(*train_test_split(x, y, test_size=0.98)))
+    # print('\n')
+    # Jeśli test_size są skrajnie duże to mamy gorszą klasyfikacje, bo mamy bardzo mały zbiór uczący
+    # Nie zawsze zmniejszenie test_size (zwiększenie zbioru uczącego) da nam lepszą dokładność
