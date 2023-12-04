@@ -189,7 +189,8 @@ if __name__ == "__main__":
     # print(calc_accuracy(*train_test_split(x, y, test_size=0.1), depth=12))
     # print('\n')
     # Drzewo o mniejszej głębokości może dać lepszą dokładność
-    # Nie zawsze zwiększenie głębkości, poprawi nam wyniki (więc można mieć za bardzo podzielone dane - overfitting)
+    # Nie zawsze zwiększenie głębkości, poprawi nam wyniki
+    # (więc można mieć za bardzo podzielone dane - overfitting)
 
     # print(calc_accuracy(*train_test_split(x, y, test_size=0.05)))
     # print(calc_accuracy(*train_test_split(x, y, test_size=0.1)))
