@@ -76,3 +76,10 @@ action = np.random.choice((np.where(info['action_mask'] == 1))[0])
 env.render()
 env.close()
 ```
+
+## Dlaczego to tak dobrze działa
+
+- kluczowy jest epsilon większy od zera w momencie uczenia, aby taxi mogło odkrywać nowe, lepsze ruchy oraz np. unikać przeszkody
+- wartości akcji Q-wartości są używane do szacowania, jak dobre są konkretne akcje w danym stanie
+- Q-learning opiera się an zasadzie Bellmana, który mówi, że oczekiwana Q-wartość dla danej pary stanu i akcji jest równa natychmiastowej nagrodzie i maksymalnej Q-wartości dla następnego stanu
+- algorytm aktualizuje Q-wartości w każdym kroku, co pozwala agentowi na bieżąco doskonalić estymacje Q-wartości

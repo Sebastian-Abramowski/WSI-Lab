@@ -23,9 +23,8 @@ class QLearningSolver:
     def __call__(self, state: int, action: int) -> float:
         return self.q_table[state, action]
 
-    def try_updating(self, state: np.ndarray, action: np.ndarray, reward: float) -> None:
-        if self.q_table[state, action] < reward:
-            self.q_table[state, action] = reward
+    def update(self, state: np.ndarray, action: np.ndarray, reward: float) -> None:
+        self.q_table[state, action] = reward
 
     def get_best_action_index(self, state: int) -> int:
         return np.argmax(self.q_table[state, :])
@@ -52,9 +51,9 @@ def get_trained_q_solver_for_taxi_problem(n_episdoes: int, max_iter_per_episode:
         curr_state = starting_state[0]
 
         if_finished = None
-        iter = 0
+        iters = 0
 
-        while not if_finished and iter <= max_iter_per_episode:
+        while not if_finished and iters <= max_iter_per_episode:
             if np.random.uniform(0, 1) < q_solver.epsilon:
                 action = env.action_space.sample()
             else:
@@ -62,38 +61,49 @@ def get_trained_q_solver_for_taxi_problem(n_episdoes: int, max_iter_per_episode:
 
             next_state, reward, if_finished, _, _ = env.step(action)
             lr = q_solver.learning_rate
-            q_solver.q_table[curr_state, action] = (1 - lr) * q_solver(curr_state, action) + lr * \
+            new_reward = (1 - lr) * q_solver(curr_state, action) + lr * \
                 (reward + q_solver.gamma * q_solver.get_best_reward(next_state))
+            q_solver.update(curr_state, action, new_reward)
             curr_state = next_state
-            iter += 1
+            iters += 1
 
     env.close()
     return q_solver
 
 
-# This is the visualization of the Taxi problem
+def show_visualization(*, train_n_episodes: int = 2500, train_max_iter_per_episode: int = 300,
+                       max_steps_in_episode: int = 30, ms_delay: int = 100,
+                       if_verbose: bool = False) -> None:
+    env = gym.make('Taxi-v3', render_mode="human",
+                   max_episode_steps=max_steps_in_episode)
+    starting_state = env.reset()
+    curr_state = starting_state[0]
+    q_solver = get_trained_q_solver_for_taxi_problem(train_n_episodes,
+                                                     train_max_iter_per_episode)
 
-env = gym.make('Taxi-v3', render_mode="human", max_episode_steps=30)
-starting_state = env.reset()
-curr_state = starting_state[0]
-q_solver = get_trained_q_solver_for_taxi_problem(2500, 300)
+    if_finished = None
+    if_truncated = None
+    info = None
+    while not if_finished and not if_truncated:
+        env.render()
+        if not info:
+            action = np.random.choice((np.where(starting_state[1]['action_mask'] == 1))[0])
+        else:
+            action = q_solver.get_best_action_index(curr_state)
+            if if_verbose:
+                print(f"Best action is: {action}")
 
-if_finished = None
-if_truncated = None
-info = None
-while not if_finished and not if_truncated:
+        next_state, _, if_finished, if_truncated, info = env.step(action)
+        curr_state = next_state
+
+        if if_verbose:
+            print("Aktualnie można wykonać akcje: " + str(info['action_mask']))
+            print(q_solver)
+        pygame.time.delay(ms_delay)
+
     env.render()
-    if not info:
-        action = np.random.choice((np.where(starting_state[1]['action_mask'] == 1))[0])
-    else:
-        action = q_solver.get_best_action_index(curr_state)
+    env.close()
 
-    next_state, reward, if_finished, if_truncated, info = env.step(action)
-    curr_state = next_state
 
-    print("Aktualnie można wykonać akcje: " + str(info['action_mask']))
-    print(q_solver)
-    pygame.time.delay(2_000)
-
-env.render()
-env.close()
+if __name__ == "__main__":
+    show_visualization()
