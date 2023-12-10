@@ -42,8 +42,10 @@ class QLearningSolver:
         return self.__repr__()
 
 
-def get_trained_q_solver_for_taxi_problem(n_episdoes: int, max_iter_per_episode: int) -> QLearningSolver:
-    q_solver = QLearningSolver(500, 6)
+def get_trained_q_solver_for_taxi_problem(n_episdoes: int, max_iter_per_episode: int,
+                                          learning_rate: float = 0.1, gamma: float = 0.9,
+                                          epsilon: float = 0.1,) -> QLearningSolver:
+    q_solver = QLearningSolver(500, 6, learning_rate, gamma, epsilon)
 
     env = gym.make('Taxi-v3')
     for _ in range(n_episdoes):
@@ -71,8 +73,8 @@ def get_trained_q_solver_for_taxi_problem(n_episdoes: int, max_iter_per_episode:
     return q_solver
 
 
-def show_visualization(*, train_n_episodes: int = 2500, train_max_iter_per_episode: int = 300,
-                       max_steps_in_episode: int = 30, ms_delay: int = 100,
+def show_visualization(*, train_n_episodes: int = 3000, train_max_iter_per_episode: int = 300,
+                       max_steps_in_episode: int = 35, ms_delay: int = 100,
                        if_verbose: bool = False) -> None:
     env = gym.make('Taxi-v3', render_mode="human",
                    max_episode_steps=max_steps_in_episode)
@@ -83,15 +85,12 @@ def show_visualization(*, train_n_episodes: int = 2500, train_max_iter_per_episo
 
     if_finished = None
     if_truncated = None
-    info = None
     while not if_finished and not if_truncated:
         env.render()
-        if not info:
-            action = np.random.choice((np.where(starting_state[1]['action_mask'] == 1))[0])
-        else:
-            action = q_solver.get_best_action_index(curr_state)
-            if if_verbose:
-                print(f"Best action is: {action}")
+
+        action = q_solver.get_best_action_index(curr_state)
+        if if_verbose:
+            print(f"Best action is: {action}")
 
         next_state, _, if_finished, if_truncated, info = env.step(action)
         curr_state = next_state
@@ -105,5 +104,78 @@ def show_visualization(*, train_n_episodes: int = 2500, train_max_iter_per_episo
     env.close()
 
 
+def test_hyperparameter(hyperparameter_name: str, hyperparameter_values: np.ndarray, *,
+                        max_steps_in_episode: int = 50,
+                        num_of_tests_per_option: int = 30) -> dict[float, int]:
+    env = gym.make('Taxi-v3', max_episode_steps=max_steps_in_episode)
+
+    results = {}
+    for value in hyperparameter_values:
+        kwargs = {hyperparameter_name: value}
+        q_solver = get_trained_q_solver_for_taxi_problem(1_000, 150, **kwargs)
+
+        wins = get_number_of_successes(num_of_tests_per_option, env, q_solver)
+        results[value] = wins
+
+    env.close()
+    return results
+
+
+def get_number_of_successes(num_of_tests_per_option: int, env: gym.Env, q_solver: QLearningSolver) -> int:
+    wins = 0
+    for _ in range(num_of_tests_per_option):
+        starting_state = env.reset()
+        curr_state = starting_state[0]
+
+        if_finished = None
+        if_truncated = None
+        while not if_finished and not if_truncated:
+            action = q_solver.get_best_action_index(curr_state)
+            next_state, _, if_finished, if_truncated, _ = env.step(action)
+            curr_state = next_state
+
+            if if_finished:
+                wins += 1
+    return wins
+
+
+def test_num_of_episodes(*, max_steps_in_episode: int = 50,
+                         num_of_tests_per_option: int = 30) -> dict[float, int]:
+    env = gym.make('Taxi-v3', max_episode_steps=max_steps_in_episode)
+    results = {}
+    possible_n_episodes = np.arange(0, 5001, 500)
+
+    for n_episodes in possible_n_episodes:
+        q_solver = get_trained_q_solver_for_taxi_problem(n_episodes, 150)
+
+        wins = get_number_of_successes(num_of_tests_per_option, env, q_solver)
+        results[n_episodes] = wins
+
+    env.close()
+    return results
+
+
+def test_max_iters_per_episode(*, max_steps_in_episode: int = 50,
+                               num_of_tests_per_option: int = 30) -> dict[float, int]:
+    env = gym.make('Taxi-v3', max_episode_steps=max_steps_in_episode)
+    results = {}
+    possible_max_iterations = np.arange(0, 501, 50)
+
+    for max_iters in possible_max_iterations:
+        q_solver = get_trained_q_solver_for_taxi_problem(1_000, max_iters)
+        wins = get_number_of_successes(num_of_tests_per_option, env, q_solver)
+        results[max_iters] = wins
+
+    env.close()
+    return results
+
+
 if __name__ == "__main__":
-    show_visualization()
+    # That's the way to calculate impact of each parameter on the algorithm
+    # print(test_hyperparameter("gamma", np.arange(0, 1.01, 0.1)))
+    # print(test_hyperparameter("epsilon", np.arange(0, 1.01, 0.1)))
+    # print(test_hyperparameter("learning_rate", np.arange(0, 1.01, 0.1)))
+    # print(test_num_of_episodes())
+    # print(test_max_iters_per_episode())
+
+    show_visualization(if_verbose=True)
