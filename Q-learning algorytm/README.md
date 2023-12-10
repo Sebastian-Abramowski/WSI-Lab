@@ -79,8 +79,7 @@ env.close()
 
 ## Dlaczego to tak dobrze działa
 
-- kluczowy jest epsilon większy od zera w momencie uczenia, aby taxi mogło odkrywać nowe, lepsze ruchy oraz np. unikać przeszkody
 - wartości akcji Q-wartości są używane do szacowania, jak dobre są konkretne akcje w danym stanie
-- Q-learning opiera się an zasadzie Bellmana, który mówi, że oczekiwana Q-wartość dla danej pary stanu i akcji jest równa natychmiastowej nagrodzie i maksymalnej Q-wartości dla następnego stanu
+- Q-learning opiera się an zasadzie Bellmana, który mówi, że oczekiwana Q-wartość dla danej pary stanu i akcji jest równa natychmiastowej nagrodzie plus maksymalna Q-wartość dla następnego stanu
 - algorytm aktualizuje Q-wartości w każdym kroku, co pozwala agentowi na bieżąco doskonalić estymacje Q-wartości
 - pod warunkiem odpowiedniego doboru parametrów i wystrczającej eksploracji, wartości Q zbiegają do optymalnych wartości Q, które reprezentują najlepszą możliwą strategie działania w danym środowisku (mimo że początkowo aktualizacje Q wartości opierają się na niedoskonałych informacjach i eksploracji)
