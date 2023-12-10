@@ -19,7 +19,7 @@ Podstawowe widomości przed wykonaniem zadania:
 
 ## Równanie Q-learning
 
-- Q(s,a)=Q(s,a)+α×(r+γ×max Q(s′, a′)−Q(s,a))
+- Q(s,a)=(1-α)\*Q(s,a)+α×(r+γ×max Q(s′, a′))
   s - stan,
   a - akcja,
   r - natychmiastowa nagroda,
@@ -51,7 +51,7 @@ Podstawowe widomości przed wykonaniem zadania:
 
 ## Przykład wizuliacji problemu Taxi, do którego trzeba dodać algorytm Q-learning
 
-'''
+```
 import gymnasium as gym
 import pygame
 import numpy as np
@@ -75,4 +75,4 @@ action = np.random.choice((np.where(info['action_mask'] == 1))[0])
 
 env.render()
 env.close()
-'''
+```
