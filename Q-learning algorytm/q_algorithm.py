@@ -23,7 +23,7 @@ class QLearningSolver:
     def __call__(self, state: int, action: int) -> float:
         return self.q_table[state, action]
 
-    def update(self, state: np.ndarray, action: np.ndarray, reward: float) -> None:
+    def update(self, state: int, action: int, reward: float) -> None:
         self.q_table[state, action] = reward
 
     def get_best_action_index(self, state: int) -> int:
