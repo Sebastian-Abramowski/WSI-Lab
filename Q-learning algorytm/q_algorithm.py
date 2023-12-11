@@ -42,13 +42,13 @@ class QLearningSolver:
         return self.__repr__()
 
 
-def get_trained_q_solver_for_taxi_problem(n_episdoes: int, max_iter_per_episode: int,
+def get_trained_q_solver_for_taxi_problem(n_episodes: int, max_iter_per_episode: int,
                                           learning_rate: float = 0.1, gamma: float = 0.9,
                                           epsilon: float = 0.1,) -> QLearningSolver:
     q_solver = QLearningSolver(500, 6, learning_rate, gamma, epsilon)
 
     env = gym.make('Taxi-v3')
-    for _ in range(n_episdoes):
+    for _ in range(n_episodes):
         starting_state = env.reset()
         curr_state = starting_state[0]
 
@@ -73,7 +73,7 @@ def get_trained_q_solver_for_taxi_problem(n_episdoes: int, max_iter_per_episode:
     return q_solver
 
 
-def show_visualization(*, train_n_episodes: int = 3000, train_max_iter_per_episode: int = 300,
+def show_visualization(*, train_n_episodes: int = 4000, train_max_iter_per_episode: int = 300,
                        max_steps_in_episode: int = 35, ms_delay: int = 100,
                        if_verbose: bool = False) -> None:
     env = gym.make('Taxi-v3', render_mode="human",
