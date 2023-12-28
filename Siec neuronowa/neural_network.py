@@ -46,8 +46,11 @@ class FullyConnected(Layer):
         self.input_size = input_size
         self.output_size = output_size
 
-    def forward(self, x: np.ndarray) -> np.ndarray:
-        pass
+        self.weights = np.random.rand(output_size, input_size) - 0.5
+        self.bias = np.random.rand(output_size, 1) - 0.5
+
+    def forward(self, input_vector: np.ndarray) -> np.ndarray:
+        return self.weights.dot(input_vector) + self.bias
 
     def backward(self, output_error_derivative) -> np.ndarray:
         pass
@@ -57,8 +60,9 @@ class Tanh(Layer):
     def __init__(self) -> None:
         super().__init__()
 
-    def forward(self, x: np.ndarray) -> np.ndarray:
-        pass
+    def forward(self, z_input_vector: np.ndarray) -> np.ndarray:
+        self.output = np.tanh(z_input_vector)
+        return self.output
 
     def backward(self, output_error_derivative) -> np.ndarray:
         pass
@@ -99,3 +103,7 @@ class Network:
             verbose: int = 0) -> None:
         """Fit the network to the training data"""
         pass
+
+
+if __name__ == "__main__":
+    print(np.random.randn(5, 10))

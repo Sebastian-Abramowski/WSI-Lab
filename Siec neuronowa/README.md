@@ -25,7 +25,7 @@ np. w(k,n) - waga neuronu nr. n idącego do neuronu nr. k w nastepnej warstwie
 
 Polega na odpowiednim doborze wag wchodzących do neuronu i jego bias i tak dla każdego neuronu.
 
-Wiemy jakie wartości chcielibyśmy uzyskać, liczymy sumę kwadratów różnic tego co nam wyszło w konkretnym neuronie i tego co powiniśmy uzyskać.
+Wiemy jakie wartości chcielibyśmy uzyskać, liczymy sumę kwadratów różnic tego co nam wyszło w końcowym neuronie i tego co powiniśmy uzyskać.
 
 Jeśli suma jest duża to idziemy w złym kierunku, jeśli jest mała to znaczy, że jest bardzo dobrze.
 
@@ -48,6 +48,7 @@ Polega na przekazywaniu błędu z wyjścia sieci do jej kolejnych warstw w odwro
 ## Wektor gradientu funkcji kosztu - pochodne
 
 ![](img/derivatives.png)
+
 Pochodne cząstkowe mówią o tym jak zmiany w tym co jest na dole, wpływają na funkcję kosztu C. Określają jaki wpływ mają wagi na błąd popełniany przez sieć neuronową.
 
 ![](img/single_der.png)
