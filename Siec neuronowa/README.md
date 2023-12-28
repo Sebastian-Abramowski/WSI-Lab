@@ -17,7 +17,7 @@ Można dodać bias, żeby opóźnić moment aktywacji neuronu.
 ---
 
 Jak szybko otrzymać wektor wartości neuronów na kolejnej warstwie:
-![img/neurons_next_layer.png]
+![](img/neurons_next_layer.png)
 
 np. w(k,n) - waga neuronu nr. n idącego do neuronu nr. k w nastepnej warstwie
 
@@ -47,12 +47,12 @@ Polega na przekazywaniu błędu z wyjścia sieci do jej kolejnych warstw w odwro
 
 ## Wektor gradientu funkcji kosztu - pochodne
 
-![img/derivatives.png]
+![](img/derivatives.png)
 Pochodne cząstkowe mówią o tym jak zmiany w tym co jest na dole, wpływają na funkcję kosztu C. Określają jaki wpływ mają wagi na błąd popełniany przez sieć neuronową.
 
-![img/single_der.png]
-![img/single_der_bias.png]
-![img/rec.png]
+![](img/single_der.png)
+![](img/single_der_bias.png)
+![](img/rec.png)
 z - suma wag
 l+1 - numer kolejnej warstwy ''idziemy bardziej w prawo''
 
