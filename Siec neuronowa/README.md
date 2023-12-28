@@ -53,8 +53,6 @@ Pochodne cząstkowe mówią o tym jak zmiany w tym co jest na dole, wpływają n
 
 ![](img/single_deriv.png)
 
-l+1 - numer kolejnej warstwy ''idziemy bardziej w prawo''
-
 W taki sposób możemy obliczyć jak dana waga wpływa na przyszły wynik funkcji kosztu patrząc na wpływ wartości przyszłego neuronu, z którym mamy połączenie, na funkcje kosztu.
 
 ## Zbiór MNIST
@@ -89,3 +87,8 @@ np. Sigmoid, ReLU
 ## Testowanie sieci neuronowej
 
 Uczysz sieć neuronową na danych treningowych np. 80% zbioru, a na pozostałej części - zbiorze testującym, sprawdzasz accuracy.
+
+## Ważne dla debuggowania
+
+GDY MOŻNA ZROBIC AxB NA MACIERZACH TO:
+LICZBA KOLUMN MACIERZY A JEST RÓWNA LICZBIE WIERSZY MACIERZY B

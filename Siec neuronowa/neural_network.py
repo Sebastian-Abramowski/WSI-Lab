@@ -4,6 +4,20 @@ from abc import abstractmethod, ABC
 from typing import List
 import numpy as np
 
+'''
+Informacje o przyjętej notacji
+- zmienne z dużej litery nie oznaczają stałych
+- X - macierz wartości neuronów np. 64x1437
+- Z - macierz X pomnożona przez odpowidnie wagi i z dodaniem biasu np. 10x1437
+- A - macierz Z po przepuszczeniu przez funkcje aktywacji np. 10x1437
+- W - macierz wag danej warstwy np. 10x64
+- b - przesunięcie warstwy, charakterystyczny dla pojedycznego neuronu w wartstwie np. 10x1,
+      też macierz, jego długość zależy od liczby neuronów wyjściowych z danej warstwy
+- dW - pochodna funkcji kosztu względem wag np. 10x64
+- db - pochodna funkcji kosztu względem biasu, np. 10x1
+- dZ - pochodna funkcji kosztu względem danej macierzy Z np. 10x1437
+'''
+
 digits = load_digits()
 
 pixels = digits.data
@@ -11,7 +25,7 @@ pixels = np.array([matrix / 16.0 for matrix in pixels])
 numbers = digits.target
 
 pixels_train, pixels_test, numbers_train, numbers_test = train_test_split(pixels, numbers, test_size=0.2)
-# wektor obrazu to teraz kolumna
+# vector of the image is now a single column
 pixels_train = pixels_train.T
 pixels_test = pixels_test.T
 m = numbers_train.size
@@ -47,33 +61,24 @@ class FullyConnected(Layer):
         super().__init__()
         self.input_size = input_size
         self.output_size = output_size
-        self.TanhLayer = Tanh()
-        self.Loss = Loss()
+        self.Loss = MseLoss()
 
         self.weights = np.random.rand(output_size, input_size) - 0.5
         self.bias = np.random.rand(output_size, 1) - 0.5
 
-    def forward(self, X1: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-        z = self.weights.dot(X1) + self.bias
-        a = self.TanhLayer.forward(z)
-        return a, z
+    def forward(self, X: np.ndarray) -> np.ndarray:
+        Z = self.weights.dot(X) + self.bias
+        return Z
 
-    def backward(self, X1: np.ndarray, Z1: np.ndarray, dZ2: np.ndarray, W2: np.ndarray
-                 ) -> tuple[np.ndarray, float, np.ndarray]:
-        dZ = self.TanhLayer.backward(Z1, dZ2, W2)
-        dW = self.Loss.mse_cost_derivative_weights(dZ, X1)
-        db = self.Loss.mse_cost_derivative_bias(dZ)
+    def backward(self, X: np.ndarray, dZ: np.ndarray
+                 ) -> tuple[np.ndarray, np.ndarray]:
+        dW = self.Loss.calc_cost_derivative_with_weights(dZ, X)
+        db = self.Loss.calc_cost_derivative_with_bias(dZ)
 
-        return dW, db, dZ
+        return dW, db
 
-    def backward_last_layer(self, A1: np.ndarray, A2: np.ndarray, Y) -> tuple[np.ndarray, float, np.ndarray]:
-        dZ = self.TanhLayer.backward_last_layer(A2, Y)
-        dW = self.Loss.mse_cost_derivative_weights(dZ, A1)
-        db = self.Loss.mse_cost_derivative_bias(dZ)
-
-        return dW, db, dZ
-
-    def update_with_gradient_descent_step(self, dW: np.ndarray, db: float) -> tuple[np.ndarray, float]:
+    def update_with_gradient_descent_step(self, dW: np.ndarray, db: np.ndarray
+                                          ) -> tuple[np.ndarray, np.ndarray]:
         self.weights = self.weights - self.learning_rate * dW
         self.bias = self.bias - self.learning_rate * db
 
@@ -87,19 +92,30 @@ class Tanh(Layer):
     def _tanh_deriv(self, z: np.ndarray) -> np.ndarray:
         return 1 - np.tanh(z) ** 2
 
-    def forward(self, z: np.ndarray) -> np.ndarray:
-        return np.tanh(z)
+    def forward(self, Z: np.ndarray) -> np.ndarray:
+        A = np.tanh(Z)
+        return A
 
-    def backward(self, Z1: np.ndarray, dZ2: np.ndarray, W2: np.ndarray) -> np.ndarray:
-        return W2.T.dot(dZ2) * self._tanh_deriv(Z1)
+    def backward(self, Z_before: np.ndarray, dZ2: np.ndarray, W2: np.ndarray) -> np.ndarray:
+        """The returned value is the PREVIOUS dZ
+        (e.g. if you use Z1, dZ2, W2 in arguments, you will get dZ1)"""
+        dZ = W2.T.dot(dZ2) * self._tanh_deriv(Z_before)
+        return dZ
 
-    def backward_last_layer(self, A2: np.ndarray, Y: np.ndarray) -> np.ndarray:
-        return A2 - Loss.get_perfect_clasification(Y)
+    def backward_last_layer(self, A_last: np.ndarray, Y: np.ndarray) -> np.ndarray:
+        dZ = A_last - MseLoss.get_perfect_clasification(Y)
+        return dZ
 
 
-class Loss:
-    def __init__(self) -> None:
-        pass
+class MseLoss:
+    def loss(self, A: np.ndarray, Y: np.ndarray) -> np.ndarray:
+        return (1 / (2 * m)) * np.sum((A - self.get_perfect_clasification(Y))**2)
+
+    def calc_cost_derivative_with_bias(self, dZ: np.ndarray) -> np.ndarray:
+        return 1 / m * np.sum(dZ, axis=1, keepdims=True)
+
+    def calc_cost_derivative_with_weights(self, dZ: np.ndarray, A: np.ndarray):
+        return 1 / m * dZ.dot(A.T)
 
     @staticmethod
     def get_perfect_clasification(Y: np.ndarray) -> np.ndarray:
@@ -108,24 +124,11 @@ class Loss:
         perfect_Y = perfect_Y.T
         return perfect_Y
 
-    def loss(self, A: np.ndarray, Y: np.ndarray) -> np.ndarray:
-        return (1 / (2 * m)) * np.sum((A - self.get_perfect_clasification(Y))**2)
-
-    def mse_cost_derivative_bias(self, dZ: np.ndarray) -> float:
-        return 1 / m * np.sum(dZ)
-
-    def mse_cost_derivative_weights(self, dZ: np.ndarray, A: np.ndarray):
-        return 1 / m * dZ.dot(A.T)
-
 
 class Network:
     def __init__(self, layers: List[Layer], learning_rate: float) -> None:
         self.layers = layers
         self.learning_rate = learning_rate
-
-    def __call__(self, x: np.ndarray) -> np.ndarray:
-        """Forward propagation of x through all layers"""
-        pass
 
     def get_predictions(self, A2: np.ndarray):
         return np.argmax(A2, 0)
@@ -138,18 +141,26 @@ class Network:
               x_train: np.ndarray,
               y_train: np.ndarray,
               epochs: int,
-              *, verbose: bool = True) -> tuple[np.ndarray, float, np.ndarray, float]:
+              *, verbose: bool = True) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         for layer in layers:
             layer.learning_rate = self.learning_rate
 
         layer1: FullyConnected = self.layers[0]
-        layer2: FullyConnected = self.layers[1]
+        layer1_5: Tanh = self.layers[1]
+        layer2: FullyConnected = self.layers[2]
+        layer2_5: Tanh = self.layers[3]
         weights1, b1, weights2, b2 = [None] * 4
+
         for i in range(epochs):
-            A1, Z1 = layer1.forward(x_train)
-            A2, Z2 = layer2.forward(A1)
-            dW2, db2, dZ2 = layer2.backward_last_layer(A1, A2, y_train)
-            dW1, db1, _ = layer1.backward(x_train, Z1, dZ2, layer2.weights)
+            Z1 = layer1.forward(x_train)
+            A1 = layer1_5.forward(Z1)
+            Z2 = layer2.forward(A1)
+            A2 = layer2_5.forward(Z2)
+
+            dZ2 = layer2_5.backward_last_layer(A2, y_train)
+            dW2, db2 = layer2.backward(A1, dZ2)
+            dZ1 = layer1_5.backward(Z1, dZ2, layer2.weights)
+            dW1, db1 = layer1.backward(x_train, dZ1)
 
             weights1, b1 = layer1.update_with_gradient_descent_step(dW1, db1)
             weights2, b2 = layer2.update_with_gradient_descent_step(dW2, db2)
@@ -164,8 +175,10 @@ class Network:
 
 if __name__ == "__main__":
     layer1 = FullyConnected(64, 10)
+    layer1_5 = Tanh()
     layer2 = FullyConnected(10, 10)
-    layers = [layer1, layer2]
+    layer2_5 = Tanh()
+    layers = [layer1, layer1_5, layer2, layer2_5]
 
     network = Network(layers, learning_rate=0.1)
-    network.train(pixels_train, numbers_train, 1000, verbose=True)
+    network.train(pixels_train, numbers_train, 500, verbose=True)
