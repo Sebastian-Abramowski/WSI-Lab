@@ -7,15 +7,15 @@ import numpy as np
 '''
 Informacje o przyjętej notacji
 - zmienne z dużej litery nie oznaczają stałych
-- X - macierz wartości neuronów np. 64x1437
-- Z - macierz X pomnożona przez odpowidnie wagi i z dodaniem biasu np. 10x1437
-- A - macierz Z po przepuszczeniu przez funkcje aktywacji np. 10x1437
-- W - macierz wag danej warstwy np. 10x64
-- b - przesunięcie warstwy, charakterystyczny dla pojedycznego neuronu w wartstwie np. 10x1,
-      też macierz, jego długość zależy od liczby neuronów wyjściowych z danej warstwy
-- dW - pochodna funkcji kosztu względem wag np. 10x64
-- db - pochodna funkcji kosztu względem biasu, np. 10x1
-- dZ - pochodna funkcji kosztu względem danej macierzy Z np. 10x1437
+- X - macierz wartości neuronów | np. 64x1437
+- Z - macierz X pomnożona przez odpowidnie wagi i z dodaniem biasu | np. 10x1437
+- A - macierz Z po przepuszczeniu przez funkcje aktywacji | np. 10x1437
+- W - macierz wag danej warstwy | np. 10x64
+- b - przesunięcie warstwy, charakterystyczny dla pojedycznego neuronu w wartstwie,
+też macierz, jego długość zależy od liczby neuronów wyjściowych z danej warstwy | np. 10x1
+- dW - pochodna funkcji kosztu względem wag | np. 10x64
+- db - pochodna funkcji kosztu względem biasu | np. 10x1
+- dZ - pochodna funkcji kosztu względem danej macierzy Z | np. 10x1437
 '''
 
 digits = load_digits()
@@ -182,3 +182,9 @@ if __name__ == "__main__":
 
     network = Network(layers, learning_rate=0.1)
     network.train(pixels_train, numbers_train, 500, verbose=True)
+
+# TODO: zademenstrowanie wstecznej propagacji na bramce XOR
+# TODO: porównanie dwóch architektur sieci - sieć z dwoma warstwami vs sieć z jedną warstwą
+# TODO: przetestowanie każdej architektury na 3 ziarnach - chodzi o wygenerowanie
+# z trzech przykładów z random seed
+# TODO: wnioski
