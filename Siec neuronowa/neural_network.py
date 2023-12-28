@@ -53,26 +53,27 @@ class FullyConnected(Layer):
         self.weights = np.random.rand(output_size, input_size) - 0.5
         self.bias = np.random.rand(output_size, 1) - 0.5
 
-    def forward(self, input_vector: np.ndarray) -> np.ndarray:
-        z = self.weights.dot(input_vector) + self.bias
+    def forward(self, X1: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        z = self.weights.dot(X1) + self.bias
         a = self.TanhLayer.forward(z)
         return a, z
 
-    def backward(self, X1, Z1, dZ2, W2) -> np.ndarray:
+    def backward(self, X1: np.ndarray, Z1: np.ndarray, dZ2: np.ndarray, W2: np.ndarray
+                 ) -> tuple[np.ndarray, float, np.ndarray]:
         dZ = self.TanhLayer.backward(Z1, dZ2, W2)
         dW = self.Loss.mse_cost_derivative_weights(dZ, X1)
         db = self.Loss.mse_cost_derivative_bias(dZ)
 
         return dW, db, dZ
 
-    def backward_last_layer(self, A1, A2, Y) -> np.ndarray:
+    def backward_last_layer(self, A1: np.ndarray, A2: np.ndarray, Y) -> tuple[np.ndarray, float, np.ndarray]:
         dZ = self.TanhLayer.backward_last_layer(A2, Y)
         dW = self.Loss.mse_cost_derivative_weights(dZ, A1)
         db = self.Loss.mse_cost_derivative_bias(dZ)
 
         return dW, db, dZ
 
-    def update_with_gradient_descent_step(self, dW, db):
+    def update_with_gradient_descent_step(self, dW: np.ndarray, db: float) -> tuple[np.ndarray, float]:
         self.weights = self.weights - self.learning_rate * dW
         self.bias = self.bias - self.learning_rate * db
 
@@ -89,35 +90,31 @@ class Tanh(Layer):
     def forward(self, z: np.ndarray) -> np.ndarray:
         return np.tanh(z)
 
-    def backward(self, Z1, dZ2, W2) -> np.ndarray:
+    def backward(self, Z1: np.ndarray, dZ2: np.ndarray, W2: np.ndarray) -> np.ndarray:
         return W2.T.dot(dZ2) * self._tanh_deriv(Z1)
 
-    def backward_last_layer(self, A2, Y):
+    def backward_last_layer(self, A2: np.ndarray, Y: np.ndarray) -> np.ndarray:
         return A2 - Loss.get_perfect_clasification(Y)
 
 
 class Loss:
-    # def __init__(self, loss_function: callable, loss_function_derivative: callable) -> None:
-    #     self.loss_function = loss_function
-    #     self.loss_function_derivative = loss_function_derivative
     def __init__(self) -> None:
         pass
 
     @staticmethod
-    def get_perfect_clasification(Y):
-        one_hot_Y = np.zeros((Y.size, Y.max() + 1))
-        one_hot_Y[np.arange(Y.size), Y] = 1
-        one_hot_Y = one_hot_Y.T
-        return one_hot_Y
+    def get_perfect_clasification(Y: np.ndarray) -> np.ndarray:
+        perfect_Y = np.zeros((Y.size, Y.max() + 1))
+        perfect_Y[np.arange(Y.size), Y] = 1
+        perfect_Y = perfect_Y.T
+        return perfect_Y
 
     def loss(self, A: np.ndarray, Y: np.ndarray) -> np.ndarray:
-        """Loss function for a particular x"""
         return (1 / (2 * m)) * np.sum((A - self.get_perfect_clasification(Y))**2)
 
-    def mse_cost_derivative_bias(self, dZ):
+    def mse_cost_derivative_bias(self, dZ: np.ndarray) -> float:
         return 1 / m * np.sum(dZ)
 
-    def mse_cost_derivative_weights(self, dZ, A):
+    def mse_cost_derivative_weights(self, dZ: np.ndarray, A: np.ndarray):
         return 1 / m * dZ.dot(A.T)
 
 
@@ -130,10 +127,10 @@ class Network:
         """Forward propagation of x through all layers"""
         pass
 
-    def get_predictions(self, A2):
+    def get_predictions(self, A2: np.ndarray):
         return np.argmax(A2, 0)
 
-    def get_accuracy(self, predictions, Y):
+    def get_accuracy(self, predictions: np.ndarray, Y: np.ndarray) -> float:
         print(predictions, Y)
         return np.sum(predictions == Y) / Y.size
 
@@ -141,11 +138,13 @@ class Network:
               x_train: np.ndarray,
               y_train: np.ndarray,
               epochs: int,
-              learning_rate: float,
-              verbose: int = 0) -> None:
+              *, verbose: bool = True) -> tuple[np.ndarray, float, np.ndarray, float]:
+        for layer in layers:
+            layer.learning_rate = self.learning_rate
+
         layer1: FullyConnected = self.layers[0]
         layer2: FullyConnected = self.layers[1]
-        weights1, b1, weights, b2 = [None] * 4
+        weights1, b1, weights2, b2 = [None] * 4
         for i in range(epochs):
             A1, Z1 = layer1.forward(x_train)
             A2, Z2 = layer2.forward(A1)
@@ -155,7 +154,7 @@ class Network:
             weights1, b1 = layer1.update_with_gradient_descent_step(dW1, db1)
             weights2, b2 = layer2.update_with_gradient_descent_step(dW2, db2)
 
-            if i % 10 == 0:
+            if verbose and i % 10 == 0:
                 print("Iteration: ", i)
                 predictions = self.get_predictions(A2)
                 print(self.get_accuracy(predictions, y_train))
@@ -169,4 +168,4 @@ if __name__ == "__main__":
     layers = [layer1, layer2]
 
     network = Network(layers, learning_rate=0.1)
-    network.train(pixels_train, numbers_train, 1000, 0.1)
+    network.train(pixels_train, numbers_train, 1000, verbose=True)

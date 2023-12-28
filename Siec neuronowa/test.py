@@ -63,6 +63,9 @@ def backward_prop(Z1, A1, Z2, A2, W1, W2, X, Y):
     dW2 = mse_cost_derivative_weights(dZ2, A1)
     db2 = mse_cost_derivative_bias(dZ2)
 
+    print(dZ2)
+    exit(2)
+
     dZ1 = W2.T.dot(dZ2) * tanh_deriv(Z1)
     dW1 = mse_cost_derivative_weights(dZ1, X)
     db1 = mse_cost_derivative_bias(dZ1)
@@ -93,6 +96,7 @@ def gradient_descent(X, Y, alpha, iterations):
         Z1, A1, Z2, A2 = forward_prop(W1, b1, W2, b2, X)
         dW1, db1, dW2, db2 = backward_prop(Z1, A1, Z2, A2, W1, W2, X, Y)
         W1, b1, W2, b2 = update_params(W1, b1, W2, b2, dW1, db1, dW2, db2, alpha)
+
         if i % 10 == 0:
             print("Iteration: ", i)
             predictions = get_predictions(A2)
@@ -101,4 +105,3 @@ def gradient_descent(X, Y, alpha, iterations):
 
 
 W1, b1, W2, b2 = gradient_descent(pixels_train, numbers_train, 0.10, 1000)
-print(W1.shape)
