@@ -51,10 +51,8 @@ Polega na przekazywaniu błędu z wyjścia sieci do jej kolejnych warstw w odwro
 
 Pochodne cząstkowe mówią o tym jak zmiany w tym co jest na dole, wpływają na funkcję kosztu C. Określają jaki wpływ mają wagi na błąd popełniany przez sieć neuronową.
 
-![](img/single_der.png)
-![](img/single_der_bias.png)
-![](img/rec.png)
-z - suma wag
+![](img/single_deriv.png)
+
 l+1 - numer kolejnej warstwy ''idziemy bardziej w prawo''
 
 W taki sposób możemy obliczyć jak dana waga wpływa na przyszły wynik funkcji kosztu patrząc na wpływ wartości przyszłego neuronu, z którym mamy połączenie, na funkcje kosztu.
