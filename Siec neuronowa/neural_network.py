@@ -45,12 +45,15 @@ class FullyConnected(Layer):
         super().__init__()
         self.input_size = input_size
         self.output_size = output_size
+        self.TanhLayer = Tanh()
 
         self.weights = np.random.rand(output_size, input_size) - 0.5
         self.bias = np.random.rand(output_size, 1) - 0.5
 
     def forward(self, input_vector: np.ndarray) -> np.ndarray:
-        return self.weights.dot(input_vector) + self.bias
+        z = self.weights.dot(input_vector) + self.bias
+        a = self.TanhLayer.forward(z)
+        return a
 
     def backward(self, output_error_derivative) -> np.ndarray:
         pass
@@ -60,9 +63,11 @@ class Tanh(Layer):
     def __init__(self) -> None:
         super().__init__()
 
+    def _tanh_deriv(self, z_input_vector: np.ndarray) -> np.ndarray:
+        return 1 - np.tanh(z_input_vector) ** 2
+
     def forward(self, z_input_vector: np.ndarray) -> np.ndarray:
-        self.output = np.tanh(z_input_vector)
-        return self.output
+        return np.tanh(z_input_vector)
 
     def backward(self, output_error_derivative) -> np.ndarray:
         pass
