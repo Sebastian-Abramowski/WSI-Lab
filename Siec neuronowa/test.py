@@ -1,7 +1,5 @@
 from sklearn.datasets import load_digits
 from sklearn.model_selection import train_test_split
-from abc import abstractmethod, ABC
-from typing import List
 import numpy as np
 
 digits = load_digits()
@@ -33,11 +31,6 @@ def tanh_deriv(Z):
     return 1 - np.tanh(Z) ** 2
 
 
-def softmax(Z):
-    A = np.exp(Z) / sum(np.exp(Z))
-    return A
-
-
 def forward_prop(W1, b1, W2, b2, X):
     Z1 = W1.dot(X) + b1
     A1 = tanh(Z1)
@@ -46,21 +39,34 @@ def forward_prop(W1, b1, W2, b2, X):
     return Z1, A1, Z2, A2
 
 
-def one_hot(Y):
+def get_perfect_clasification(Y):
     one_hot_Y = np.zeros((Y.size, Y.max() + 1))
     one_hot_Y[np.arange(Y.size), Y] = 1
     one_hot_Y = one_hot_Y.T
     return one_hot_Y
 
 
+def mse_cost(A, Y):
+    return (1 / (2 * m)) * np.sum((A - get_perfect_clasification(Y))**2)
+
+
+def mse_cost_derivative_bias(dZ):
+    return 1 / m * np.sum(dZ)
+
+
+def mse_cost_derivative_weights(dZ, A):
+    return 1 / m * dZ.dot(A.T)
+
+
 def backward_prop(Z1, A1, Z2, A2, W1, W2, X, Y):
-    one_hot_Y = one_hot(Y)
-    dZ2 = A2 - one_hot_Y
-    dW2 = 1 / m * dZ2.dot(A1.T)
-    db2 = 1 / m * np.sum(dZ2)
+    dZ2 = A2 - get_perfect_clasification(Y)
+    dW2 = mse_cost_derivative_weights(dZ2, A1)
+    db2 = mse_cost_derivative_bias(dZ2)
+
     dZ1 = W2.T.dot(dZ2) * tanh_deriv(Z1)
-    dW1 = 1 / m * dZ1.dot(X.T)
-    db1 = 1 / m * np.sum(dZ1)
+    dW1 = mse_cost_derivative_weights(dZ1, X)
+    db1 = mse_cost_derivative_bias(dZ1)
+
     return dW1, db1, dW2, db2
 
 
@@ -94,4 +100,5 @@ def gradient_descent(X, Y, alpha, iterations):
     return W1, b1, W2, b2
 
 
-W1, b1, W2, b2 = gradient_descent(pixels_train, numbers_train, 0.10, 500)
+W1, b1, W2, b2 = gradient_descent(pixels_train, numbers_train, 0.10, 1000)
+print(W1.shape)

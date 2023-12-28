@@ -7,15 +7,17 @@ import numpy as np
 digits = load_digits()
 
 pixels = digits.data
+pixels = np.array([matrix / 16.0 for matrix in pixels])
 numbers = digits.target
+
 pixels_train, pixels_test, numbers_train, numbers_test = train_test_split(pixels, numbers, test_size=0.2)
-pixels_train = [matrix / 16.0 for matrix in pixels_train]
-pixels_test = [matrix / 16.0 for matrix in pixels_test]
+# wektor obrazu to teraz kolumna
+pixels_train = pixels_train.T
+pixels_test = pixels_test.T
+m = numbers_train.size
 
 
 class Layer(ABC):
-    """Basic building block of the Neural Network"""
-
     def __init__(self) -> None:
         self._learning_rate = 0.01
 
@@ -46,6 +48,7 @@ class FullyConnected(Layer):
         self.input_size = input_size
         self.output_size = output_size
         self.TanhLayer = Tanh()
+        self.Loss = Loss()
 
         self.weights = np.random.rand(output_size, input_size) - 0.5
         self.bias = np.random.rand(output_size, 1) - 0.5
@@ -53,38 +56,69 @@ class FullyConnected(Layer):
     def forward(self, input_vector: np.ndarray) -> np.ndarray:
         z = self.weights.dot(input_vector) + self.bias
         a = self.TanhLayer.forward(z)
-        return a
+        return a, z
 
-    def backward(self, output_error_derivative) -> np.ndarray:
-        pass
+    def backward(self, X1, Z1, dZ2, W2) -> np.ndarray:
+        dZ = self.TanhLayer.backward(Z1, dZ2, W2)
+        dW = self.Loss.mse_cost_derivative_weights(dZ, X1)
+        db = self.Loss.mse_cost_derivative_bias(dZ)
+
+        return dW, db, dZ
+
+    def backward_last_layer(self, A1, A2, Y) -> np.ndarray:
+        dZ = self.TanhLayer.backward_last_layer(A2, Y)
+        dW = self.Loss.mse_cost_derivative_weights(dZ, A1)
+        db = self.Loss.mse_cost_derivative_bias(dZ)
+
+        return dW, db, dZ
+
+    def update_with_gradient_descent_step(self, dW, db):
+        self.weights = self.weights - self.learning_rate * dW
+        self.bias = self.bias - self.learning_rate * db
+
+        return self.weights, self.bias
 
 
 class Tanh(Layer):
     def __init__(self) -> None:
         super().__init__()
 
-    def _tanh_deriv(self, z_input_vector: np.ndarray) -> np.ndarray:
-        return 1 - np.tanh(z_input_vector) ** 2
+    def _tanh_deriv(self, z: np.ndarray) -> np.ndarray:
+        return 1 - np.tanh(z) ** 2
 
-    def forward(self, z_input_vector: np.ndarray) -> np.ndarray:
-        return np.tanh(z_input_vector)
+    def forward(self, z: np.ndarray) -> np.ndarray:
+        return np.tanh(z)
 
-    def backward(self, output_error_derivative) -> np.ndarray:
-        pass
+    def backward(self, Z1, dZ2, W2) -> np.ndarray:
+        return W2.T.dot(dZ2) * self._tanh_deriv(Z1)
+
+    def backward_last_layer(self, A2, Y):
+        return A2 - Loss.get_perfect_clasification(Y)
 
 
 class Loss:
-    def __init__(self, loss_function: callable, loss_function_derivative: callable) -> None:
-        self.loss_function = loss_function
-        self.loss_function_derivative = loss_function_derivative
+    # def __init__(self, loss_function: callable, loss_function_derivative: callable) -> None:
+    #     self.loss_function = loss_function
+    #     self.loss_function_derivative = loss_function_derivative
+    def __init__(self) -> None:
+        pass
 
-    def loss(self, x: np.ndarray) -> np.ndarray:
+    @staticmethod
+    def get_perfect_clasification(Y):
+        one_hot_Y = np.zeros((Y.size, Y.max() + 1))
+        one_hot_Y[np.arange(Y.size), Y] = 1
+        one_hot_Y = one_hot_Y.T
+        return one_hot_Y
+
+    def loss(self, A: np.ndarray, Y: np.ndarray) -> np.ndarray:
         """Loss function for a particular x"""
-        pass
+        return (1 / (2 * m)) * np.sum((A - self.get_perfect_clasification(Y))**2)
 
-    def loss_derivative(self, x: np.ndarray, y: np.ndarray) -> np.ndarray:
-        """Loss function derivative for a particular x and y"""
-        pass
+    def mse_cost_derivative_bias(self, dZ):
+        return 1 / m * np.sum(dZ)
+
+    def mse_cost_derivative_weights(self, dZ, A):
+        return 1 / m * dZ.dot(A.T)
 
 
 class Network:
@@ -92,23 +126,47 @@ class Network:
         self.layers = layers
         self.learning_rate = learning_rate
 
-    def compile(self, loss: Loss) -> None:
-        """Define the loss function and loss function derivative"""
-        pass
-
     def __call__(self, x: np.ndarray) -> np.ndarray:
         """Forward propagation of x through all layers"""
         pass
 
-    def fit(self,
-            x_train: np.ndarray,
-            y_train: np.ndarray,
-            epochs: int,
-            learning_rate: float,
-            verbose: int = 0) -> None:
-        """Fit the network to the training data"""
-        pass
+    def get_predictions(self, A2):
+        return np.argmax(A2, 0)
+
+    def get_accuracy(self, predictions, Y):
+        print(predictions, Y)
+        return np.sum(predictions == Y) / Y.size
+
+    def train(self,
+              x_train: np.ndarray,
+              y_train: np.ndarray,
+              epochs: int,
+              learning_rate: float,
+              verbose: int = 0) -> None:
+        layer1: FullyConnected = self.layers[0]
+        layer2: FullyConnected = self.layers[1]
+        weights1, b1, weights, b2 = [None] * 4
+        for i in range(epochs):
+            A1, Z1 = layer1.forward(x_train)
+            A2, Z2 = layer2.forward(A1)
+            dW2, db2, dZ2 = layer2.backward_last_layer(A1, A2, y_train)
+            dW1, db1, _ = layer1.backward(x_train, Z1, dZ2, layer2.weights)
+
+            weights1, b1 = layer1.update_with_gradient_descent_step(dW1, db1)
+            weights2, b2 = layer2.update_with_gradient_descent_step(dW2, db2)
+
+            if i % 10 == 0:
+                print("Iteration: ", i)
+                predictions = self.get_predictions(A2)
+                print(self.get_accuracy(predictions, y_train))
+
+        return weights1, b1, weights2, b2
 
 
 if __name__ == "__main__":
-    print(np.random.randn(5, 10))
+    layer1 = FullyConnected(64, 10)
+    layer2 = FullyConnected(10, 10)
+    layers = [layer1, layer2]
+
+    network = Network(layers, learning_rate=0.1)
+    network.train(pixels_train, numbers_train, 1000, 0.1)
