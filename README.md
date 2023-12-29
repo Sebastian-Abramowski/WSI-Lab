@@ -8,4 +8,5 @@ Zadania na WSI (Wstęp do sztucznej inteligencji)
 - Zad. 3 - algorytm Minimax do gry Connect Four
 - Zad. 4 - implementacja drzewa decyzyjnego ID3 (testowany na zbiorze Iris)
 - Zad. 5 - implementacja algorytmu Q-learning (testowany dla problemu Taxi)
-- Zad. 6 - TBA
+- Zad. 6 - implementacja sieci neuronowej (testowanej na zbiorze MNIST)
+- Zad. 7 - coś z sieciami Bayesa
