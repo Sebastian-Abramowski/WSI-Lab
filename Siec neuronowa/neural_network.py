@@ -10,6 +10,7 @@ import numpy as np
 Informacje o przyjętej notacji
 - zmienne z dużej litery nie oznaczają stałych
 - X - macierz wartości neuronów | np. 64x1437
+- Y - lista etykiet, które odpowiadają obrazom | np. 1437x1
 - Z - macierz X pomnożona przez odpowidnie wagi i z dodaniem biasu | np. 10x1437
 - A - macierz Z po przepuszczeniu przez funkcje aktywacji | np. 10x1437
 - W - macierz wag danej warstwy | np. 10x64
@@ -146,7 +147,6 @@ class Network:
         return np.argmax(A2, 0)
 
     def get_accuracy(self, predictions: np.ndarray, Y: np.ndarray) -> float:
-        print(predictions, Y)
         return np.sum(predictions == Y) / Y.size
 
     def train(self,
@@ -188,13 +188,13 @@ class Network:
                         x_train: np.ndarray,
                         y_train: np.ndarray,
                         epochs: int,
-                        *, verbose: bool = True) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+                        *, verbose: bool = True) -> tuple[np.ndarray, np.ndarray]:
         for layer in self.layers:
             layer.learning_rate = self.learning_rate
 
         layer1: FullyConnected = self.layers[0]
         layer1_5: Tanh = self.layers[1]
-        weights1, b1, weights2, b2 = [None] * 4
+        weights1, b1 = None, None
 
         for i in range(epochs):
             Z1 = layer1.forward(x_train)
@@ -210,7 +210,7 @@ class Network:
                 predictions = self.get_predictions(A1)
                 print(self.get_accuracy(predictions, y_train))
 
-        return weights1, b1, weights2, b2
+        return weights1, b1
 
 
 def demonstrate_XOR_gate(epochs: int) -> tuple[Network, tuple[
@@ -237,7 +237,7 @@ if __name__ == "__main__":
     # network, settings = demonstrate_XOR_gate(5001)
     # print(settings)
 
-    np.random.seed(1)
+    np.random.seed(420)
 
     layer1 = FullyConnected(64, 10, m)
     layer1_5 = Tanh()
@@ -246,7 +246,7 @@ if __name__ == "__main__":
     layers = [layer1, layer1_5, layer2, layer2_5]
 
     network = Network(layers, learning_rate=0.1)
-    network.train(pixels_train, numbers_train, 2501, verbose=True)
+    network.train(pixels_train, numbers_train, 501, verbose=True)
 
     # layer1 = FullyConnected(64, 10, m)
     # layer1_5 = Tanh()
