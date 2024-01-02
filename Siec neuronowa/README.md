@@ -1,4 +1,4 @@
-Podstawowe widomości przed wykonaniem zadania:
+Podstawowe wiadomości przed wykonaniem zadania:
 
 ## Warstwy
 
