@@ -1,6 +1,6 @@
 Podstawowe wiadomości przed wykonaniem zadania:
 
-## Pomoce
+## Pomoce (dosłownie wszystko co jest potrzebne)
 
 - https://www.youtube.com/watch?v=O2L2Uv9pdDA
 - https://www.youtube.com/watch?v=H3EjCKtlVog
