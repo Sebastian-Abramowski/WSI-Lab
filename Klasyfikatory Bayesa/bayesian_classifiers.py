@@ -133,7 +133,7 @@ class GaussianNaiveBayes:
         return np.array(predictions)
 
 
-if __name__ == "__main__":
+def default_test() -> None:
     bayes_classifier = NaiveBayes(num_of_bins=4)
     bayes_classifier.build_classifier(x_train, y_train)
     print("Naive Bayes Classifier")
@@ -151,11 +151,24 @@ if __name__ == "__main__":
     print(y_test)
 
 
-# TODO: porównaine wyników dla klasyfikatorów Bayesa z dyskretyzacją i bez
-# TODO: porówannie zmiany liczby przedziałów dyskretyzacji dla naiwnego Bayesa
-# TODO: podziel zbiór na 80% i 20% i sprawdzć trzy accuracy dla trzech róznych seedów
+def calc_bayes_accuracy(x_train, x_test, y_train, y_test, num_of_bins: int) -> float:
+    bayes_classifier = NaiveBayes(num_of_bins)
+    bayes_classifier.build_classifier(x_train, y_train)
+    return sum(y_test == bayes_classifier.predict(x_test)) / len(y_test)
 
-# PRZYSZŁE WNIOSKI:
-# Dyskretyzacja danych może prowadzić do utraty informacji, co może wpłynąć na wydajność klasyfikatora Bayesa dla danych dyskretnych.
-# Klasyfikator Bayesa dla danych ciągłych osiągnął wyższą dokładność niż klasyfikator Bayesa dla danych dyskretnych
-# Jak wpłwa liczba przedziałów dyskretyzacji na dokłądność naiwnego Bayesa?
+
+def calc_gaussian_accuracy(x_train, x_test, y_train, y_test) -> float:
+    gaussian_classifier = GaussianNaiveBayes()
+    gaussian_classifier.build_classifier(x_train, y_train)
+    return sum(y_test == gaussian_classifier.predict(x_test)) / len(y_test)
+
+
+if __name__ == "__main__":
+    default_test()
+
+    values_split = train_test_split(x, y, test_size=0.2, random_state=1)
+    print(calc_bayes_accuracy(*values_split, 4))
+    print(calc_gaussian_accuracy(*values_split))
+
+    # values_split = train_test_split(x, y, test_size=0.2, random_state=1)
+    # print(calc_bayes_accuracy(*values_split, 4))
