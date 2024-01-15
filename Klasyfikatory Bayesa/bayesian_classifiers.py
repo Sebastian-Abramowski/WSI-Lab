@@ -1,4 +1,3 @@
-from collections import Counter
 import numpy as np
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
@@ -28,6 +27,8 @@ class NaiveBayes:
             self.priors[single_class] = class_prob
 
     def _set_likelihoods(self, discrete_train_features, train_classes):
+        alpha = 0.5
+
         for single_class in np.unique(train_classes):
             self.likelihoods[single_class] = {}
             features = discrete_train_features[train_classes == single_class]
@@ -39,7 +40,8 @@ class NaiveBayes:
 
                 for bin_num in range(1, 5):
                     feature_for_single_bin = feature[feature == bin_num]
-                    feature_prob = len(feature_for_single_bin) / len(feature)
+                    feature_prob = (len(feature_for_single_bin) + alpha
+                                    ) / (len(feature) + alpha)
 
                     self.likelihoods[single_class][feature_index][bin_num] = feature_prob
 
@@ -79,14 +81,52 @@ class GaussianNaiveBayes:
         self.likelihoods = {}
 
     def build_classifier(self, train_features, train_classes):
-        pass
+        self._set_priors(train_classes)
+        self._set_likelihoods(train_features, train_classes)
+
+    def _set_priors(self, train_classes):
+        for single_class in np.unique(train_classes):
+            class_prob = np.sum(train_classes == single_class) / len(train_classes)
+            self.priors[single_class] = class_prob
+
+    def _set_likelihoods(self, train_features, train_classes):
+        for single_class in np.unique(train_classes):
+            self.likelihoods[single_class] = {}
+            features = train_features[train_classes == single_class]
+
+            num_of_features = train_features.shape[1]
+            for feature_index in range(num_of_features):
+                self.likelihoods[single_class][feature_index] = {}
+                feature = features[:, feature_index]
+
+                mean = feature.mean()
+                std = feature.std()
+
+                self.likelihoods[single_class][feature_index] = {'mean': mean, 'std': std}
 
     @staticmethod
-    def normal_dist(x, mean, std):
-        pass
+    def normal_dist_density(x, mean, std):
+        exp = np.exp(-((x - mean)**2 / (2 * std**2)))
+        return (1 / std * (np.sqrt(2 * np.pi))) * exp
 
-    def predict(self, sample):
-        pass
+    def predict(self, samples):
+        predictions = []
+        for sample in samples:
+            posterior_likelihoods = {}
+            for single_class in self.priors:
+                posterior_likelihood = np.log(self.priors[single_class])
+
+                for feature_index, feature_value in enumerate(sample):
+                    mean = self.likelihoods[single_class][feature_index]['mean']
+                    std = self.likelihoods[single_class][feature_index]['std']
+                    normal_dist_dens = self.normal_dist_density(feature_value, mean, std)
+                    posterior_likelihood += np.log(normal_dist_dens)
+
+                posterior_likelihoods[single_class] = posterior_likelihood
+            predicted_class = max(posterior_likelihoods, key=lambda k: posterior_likelihoods[k])
+            predictions.append(predicted_class)
+
+        return np.array(predictions)
 
 
 if __name__ == "__main__":
@@ -98,5 +138,10 @@ if __name__ == "__main__":
     print("Aktual classes:   \t", end="")
     print(y_test)
 
+    gausian_bayer_classifer = GaussianNaiveBayes()
+    gausian_bayer_classifer.build_classifier(x_train, y_train)
     print("Gaussian Naive Bayes Classifier")
-    print("TBA")
+    print("Predicted classes:\t", end="")
+    print(gausian_bayer_classifer.predict(x_test))
+    print("Aktual classes:   \t", end="")
+    print(y_test)
