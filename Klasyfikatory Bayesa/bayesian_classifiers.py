@@ -49,7 +49,7 @@ class NaiveBayes:
         num_of_features = data.shape[1]
         for feature_index in range(num_of_features):
             feature_values = data[:, feature_index]
-            bins_ranges = np.linspace(np.min(feature_values), np.max(feature_values), 4)
+            bins_ranges = np.linspace(np.min(feature_values), np.max(feature_values) + 1e-10, 5)
             feature_discrete = np.digitize(feature_values, bins_ranges)
             copied_data[:, feature_index] = feature_discrete
         return copied_data

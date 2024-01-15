@@ -31,3 +31,11 @@ Acykliczny graf, w którym:
 - naiwność polega na tym, że zakładamy, że w ramach każdej klasy atrybuty są niezależne (w rzeczywistości jest to zazwyczaj niespełnione)
 
 ![](img/bayes_3.png)
+
+## Naiwny gausowski klasyfikator Bayesa
+
+- używa wartości ciągłych
+- używa rozkładu normalnego dla rozkładu dla każdej cechy
+- na początku także strzelamy, która klasa będzie ok, przechodząc przez wszstkie klasy
+- dla pojedynczej wartości cechy nie znajdujemy prawdopodobieństwa warunkowego, ale gęstość prawdopodobieństwa patrząc na rozkład normalny
+- i cały nasz iloczyn przepuszczamy przez logarytm aby uniknąć bardzo bardzo małych wartości loga(u\*v) = loga(u) + loga(v): na podstawie tych wyników patrzymy, która klasa jest bardziej prawdopodobna, która klasa ma większą obliczoną wartość
