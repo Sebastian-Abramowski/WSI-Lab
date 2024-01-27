@@ -29,8 +29,6 @@ Wiemy jakie wartości chcielibyśmy uzyskać, liczymy sumę kwadratów różnic 
 
 Jeśli suma jest duża to idziemy w złym kierunku, jeśli jest mała to znaczy, że jest bardzo dobrze.
 
-Wiedziąć to ustawiamy losowo parametry tak aby minimalizować funkcję kosztu.
-
 W procesie trenowania sieci neuronowej celem jest minimalizacja średniej wartości wartoścji funkcji kosztu obliczonej dla wszystkich przypadków w zbiorze treningowym.
 
 ## Gradient descent

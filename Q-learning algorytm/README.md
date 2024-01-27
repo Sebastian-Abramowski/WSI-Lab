@@ -14,8 +14,8 @@ Podstawowe widomości przed wykonaniem zadania:
 
 ## Proces uczenia
 
-- agent początkowo eskploruje środowisko, podejmując losowe decyzje, a z czasem zaczyna wykorzystywać swoją wiedzę, wybierając akcje maksymalizujące wartość Q
-- na końcu procesu uczenia się w algorytmie Q-learning-u będziemy mieli pełną tablę wartości Q, z której będziemy mogli czytać najlepszą akcję w danym stanie
+- agent początkowo powinien eskplorować środowisko, podejmując losowe decyzje raz na jakiś czas (Algorytm zazwyczaj podejmuje najlepszą możliwą akcje w danym stanie, ale nie może tego robić zawsze, bo musi także eksplorować środowisko - jest to bardzo ważne szczególnie na początku działania)
+- na końcu procesu uczenia się w algorytmie Q-learning-u będziemy mieli pełną tablę wartości Q, z której będziemy mogli czytać najlepszą akcję w danym stanie (oznaczają one oczekiwane przyszłe nagrody przy wykonaniu konkretnej akcji w danym stanie)
 
 ## Równanie Q-learning
 
@@ -82,4 +82,4 @@ env.close()
 - wartości akcji Q-wartości są używane do szacowania, jak dobre są konkretne akcje w danym stanie
 - Q-learning opiera się an zasadzie Bellmana, który mówi, że oczekiwana Q-wartość dla danej pary stanu i akcji jest równa natychmiastowej nagrodzie plus maksymalna Q-wartość dla następnego stanu
 - algorytm aktualizuje Q-wartości w każdym kroku, co pozwala agentowi na bieżąco doskonalić estymacje Q-wartości
-- pod warunkiem odpowiedniego doboru parametrów i wystrczającej eksploracji, wartości Q zbiegają do optymalnych wartości Q, które reprezentują najlepszą możliwą strategie działania w danym środowisku (mimo że początkowo aktualizacje Q wartości opierają się na niedoskonałych informacjach i eksploracji)
+- pod warunkiem odpowiedniego doboru parametrów i wystrczającej eksploracji, wartości Q zbiegają do optymalnych wartości Q, które reprezentują optymalną strategie działania (politykę) w danym środowisku (mimo że początkowo aktualizacje Q wartości opierają się na niedoskonałych informacjach i eksploracji)

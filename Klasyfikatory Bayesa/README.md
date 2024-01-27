@@ -5,15 +5,6 @@ Podstawowe wiadomości przed wykonaniem zadania:
 - https://www.youtube.com/watch?v=O2L2Uv9pdDA
 - https://www.youtube.com/watch?v=H3EjCKtlVog
 
-## Sieć Bayesa
-
-Acykliczny graf, w którym:
-
-- wierzchołki odpowiadają dyskretnym zmienny losowym
-- krawędzie reprezentują bezpośrednio występujące zależności między tymi zmiennymi
-- dla każdej zmiennej dany jest jej rozkład prawdopodobieństwa – warunkowy jeżeli do zmiennej prowadzą krawędzie
-- strzałki: przyczyna -> skutek
-
 ---
 
 ![](img/bayes_1.png)

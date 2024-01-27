@@ -10,6 +10,7 @@ Zadania na WSI (Wstęp do sztucznej inteligencji) - zadania nie na max punktów 
   testy nie powinny być te pythonowe; przydałby się inny sposób testowania (chodzi o wykresy na końcu); podobno
   nie zawsze jest tak, że w pojedynkach bot vs bot o takich samych głębkościach, wygrywa ten, który się pierwszy ruszy
 - Zad. 4 - implementacja drzewa decyzyjnego ID3 (testowany na zbiorze Iris)
+  Tutaj przydałoby się polepszyć sposób robienia i oznaczenia testów, jakieś wykresy
 - Zad. 5 - implementacja algorytmu Q-learning (testowany dla problemu Taxi)
 - Zad. 6 - implementacja sieci neuronowej (testowanej na zbiorze MNIST) <br>
   Uwagi:
